@@ -8,13 +8,15 @@ HIGH_VALUE = 10000
 
 # Creates the USBCamera Class
 class USBCamera:
+    # Constructor
     def __init__(self, camNum) -> None:
         # Sets camera properties
         self.camNum = camNum
 
         # Auto Resize
         self.autoResize()
-    
+
+    # Autmatically resizes the capture to the highest resolution
     def autoResize(self):
         # Creates a capture
         self.cap = cv.VideoCapture(self.camNum)
@@ -35,7 +37,8 @@ class USBCamera:
         # Prints telemetry
         print("Max Resolution:", str(width) + "x" + str(height))
         print("Max FPS:", fps)
-    
+
+    # Returns the capture
     def getCapture(self):
         # Returns the capture
         return self.cap

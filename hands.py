@@ -59,9 +59,10 @@ left_hand_array_template  = np.array([
 
 # Creates the Hands Class
 class Hands:
+    # Constructor
     def __init__(self, capture) -> None:
-        # Creates a temporary capture
-        self.tempCap = capture
+        # Creates a local capture
+        self.cap = capture
 
         # Gets the active capture properties
         self.width  = int(capture.get(cv.CAP_PROP_FRAME_WIDTH))
@@ -70,41 +71,37 @@ class Hands:
         # Create an instance of Handedness
         self.handedness = Handedness(self.width, self.height)
 
+    # Live track the position of the hands
     def liveTracking(self):
-        # Create a local capture (I don't like typing self.cap repetedlty)
-        cap = self.tempCap
-
         with mp_hands.Hands(max_num_hands = 2, model_complexity = 0, min_detection_confidence = 0.5, min_tracking_confidence = 0.5) as hands:
-            while cap.isOpened():
-                success, stream = cap.read()
-                if not success:
-                    raise IOError("Camera error! Failed to start!")
-                
-                # Small optimizations before processing
-                stream = cv.cvtColor(stream, cv.COLOR_RGB2BGR)
-                stream = cv.flip(stream, 1)
+            # Reads an open USB Camera
+            success, stream = self.cap.read()
+            if not success:
+                raise IOError("Camera error! Failed to start!")
+            
+            # Small optimizations before processing
+            stream = cv.cvtColor(stream, cv.COLOR_RGB2BGR)
+            stream = cv.flip(stream, 1)
 
-                # To improve performance, optionally mark the stream as not writeable to pass by reference
-                stream.flags.writeable = False
-                results = hands.process(stream)
-                handData, handsType = self.handedness.calcHandData(results)
+            # To improve performance, optionally mark the stream as not writeable to pass by reference
+            stream.flags.writeable = False
+            results = hands.process(stream)
+            handData, handsType = self.handedness.calcHandData(results)
 
-                # Draw the hand annotations on the stream
-                stream.flags.writeable = True
-                stream = cv.cvtColor(stream, cv.COLOR_BGR2RGB)
-                stream = self.drawHandPositions(stream, results)
-                stream = self.handedness.drawHandedness(stream, handData, handsType)
-                
-                # Display the streams
-                cv.imshow('Mediapipe Hands', stream)
+            # Draw the hand annotations on the stream
+            stream.flags.writeable = True
+            stream = cv.cvtColor(stream, cv.COLOR_BGR2RGB)
+            stream = self.drawHandPositions(stream, results)
+            stream = self.handedness.drawHandedness(stream, handData, handsType)
+            
+            # Display the streams
+            cv.imshow('Mediapipe Hands', stream)
 
-                # Waits for the q key to be pressed
-                if ( cv.waitKey(1) == ord("q") ):
-                    print("Process Ended by User")
-                    cap.release()
-                    break
-        cap.release()
+            x1, y1, x2, y2 = 0, 0, 0, 0
 
+        return x1, y1, x2, y2
+
+    # Draws the keypoints and connects them
     def drawHandPositions(self, stream, results):
         if results.multi_hand_landmarks:
                 for hand_landmarks in results.multi_hand_landmarks:
@@ -117,7 +114,9 @@ class Hands:
 
         return stream
 
+# Creates the Handedness Class
 class Handedness:
+    # Constructor
     def __init__(self, width, height) -> None:
         # Gets the active camera properties
         self.width  = width
@@ -125,7 +124,8 @@ class Handedness:
 
         # Creates an instance of ArrayStorage
         self.arrayStorage = ArrayStorage()
-    
+
+    # Calculates hand type and parseable data
     def calcHandData(self, results):
         myHands   = []
         handsType = []
@@ -168,6 +168,7 @@ class Handedness:
 
         return myHands, handsType
 
+    # Draw the handedness on each hand
     def drawHandedness(self, stream, handData, handsType):
 
         for hand, handType in zip(handData, handsType):
@@ -180,16 +181,16 @@ class Handedness:
                 cv.circle(stream, hand[ind], 10, handColor, 5)
 
         return stream
-    
-    def getArrayStorageInstance(self):
-        return self.arrayStorage
 
+# Creates the ArrayStorage Class
 class ArrayStorage:
+    # Constructor
     def __init__(self) -> None:
         # Creates two blank numpy arrays
         self.array1 = np.array([])
         self.array2 = np.array([]) 
-    
+
+    # Calulates needed arrays
     def calcNeededArrays(self, handType):
         if (len(handType) > 0 ):
             if (len(handType) >= 1):
@@ -208,7 +209,8 @@ class ArrayStorage:
                     raise ValueError("Not a possible value")
         else:
             return
-    
+
+    # Fills the first array with data
     def fillArray1(self, data):
         if (len(self.array1) > 0):
             for i in range(0, len(self.array1)):
@@ -224,7 +226,8 @@ class ArrayStorage:
                     return
         else:
             return
-    
+
+    # Fills the second array with data
     def fillArray2(self, data):
         if (len(self.array2) > 0):
             for j in range(0, len(self.array2)):
@@ -240,15 +243,19 @@ class ArrayStorage:
                     return
         else:
             return
-    
+
+    # Prints the first array
     def printArray1(self):
         print("Array 1: ", self.array1)
-    
+
+    # Prints the second array
     def printArray2(self):
         print("Array 2: ", self.array2)
-    
+
+    # Returns the first array
     def getArray1(self):
         return self.array1
 
+    # Returns the first array
     def getArray2(self):
         return self.array2
