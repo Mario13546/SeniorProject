@@ -57,6 +57,7 @@ left_hand_array_template  = np.array([
                             ["Left Pinky TIP", 0, 0]  # 20
                             ])
 
+# Creates the Hands Class
 class Hands:
     def __init__(self, capture) -> None:
         # Creates a temporary capture

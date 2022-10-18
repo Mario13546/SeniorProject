@@ -6,6 +6,7 @@ import cv2 as cv
 # Variables
 HIGH_VALUE = 10000
 
+# Creates the USBCamera Class
 class USBCamera:
     def __init__(self, camNum) -> None:
         # Sets camera properties
