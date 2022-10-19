@@ -5,8 +5,8 @@
 Servo servo;
 
 // Variables
-int const servoPin = 9
-int value = 0
+int const servoPin = 9;
+int value = 0;
 
 void setup() {
   // Starts serial communications
