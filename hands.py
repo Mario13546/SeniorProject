@@ -59,8 +59,10 @@ left_hand_array_template  = np.array([
 
 # Creates the Hands Class
 class Hands:
-    # Constructor
     def __init__(self, capture) -> None:
+        """
+        Constructor
+        """
         # Creates a local capture
         self.cap = capture
 
@@ -71,8 +73,10 @@ class Hands:
         # Create an instance of Handedness
         self.handedness = Handedness(self.width, self.height)
 
-    # Live track the position of the hands
     def liveTracking(self):
+        """
+        Live track the position of the hands
+        """
         with mp_hands.Hands(max_num_hands = 2, model_complexity = 0, min_detection_confidence = 0.5, min_tracking_confidence = 0.5) as hands:
             # Reads an open USB Camera
             success, stream = self.cap.read()
@@ -101,8 +105,10 @@ class Hands:
 
         return x1, y1, x2, y2
 
-    # Draws the keypoints and connects them
     def drawHandPositions(self, stream, results):
+        """
+        Draws keypoints and connects them
+        """
         if results.multi_hand_landmarks:
                 for hand_landmarks in results.multi_hand_landmarks:
                     mp_drawing.draw_landmarks(
@@ -116,17 +122,18 @@ class Hands:
 
 # Creates the Handedness Class
 class Handedness:
-    # Constructor
     def __init__(self, width, height) -> None:
+        """
+        Constructor
+        """
         # Gets the active camera properties
         self.width  = width
         self.height = height
 
-        # Creates an instance of ArrayStorage
-        self.arrayStorage = ArrayStorage()
-
-    # Calculates hand type and parseable data
     def calcHandData(self, results):
+        """
+        Calculates hand type and parseable data
+        """
         myHands   = []
         handsType = []
         
@@ -135,9 +142,6 @@ class Handedness:
                 # Add classification data to handsType 
                 handType = hand.classification[0].label
                 handsType.append(handType)
-
-                # Determines what hands are present in the capture
-                self.arrayStorage.calcNeededArrays(handsType)
 
             for handLandMarks in results.multi_hand_landmarks:
                 myHand = []
@@ -149,15 +153,12 @@ class Handedness:
                 # Adds myHand to myHands
                 myHands.append(myHand)
 
-                # Fills the arrays with position data
-                self.arrayStorage.fillArray1(myHands)
-                self.arrayStorage.fillArray2(myHands)
-
         return myHands, handsType
 
-    # Draw the handedness on each hand
     def drawHandedness(self, stream, handData, handsType):
-
+        """
+        Draw the handedness on each hand
+        """
         for hand, handType in zip(handData, handsType):
             if (handType == 'Right'):
                 handColor = (255, 0, 0)
@@ -168,81 +169,3 @@ class Handedness:
                 cv.circle(stream, hand[ind], 10, handColor, 5)
 
         return stream
-
-# Creates the ArrayStorage Class
-class ArrayStorage:
-    # Constructor
-    def __init__(self) -> None:
-        # Creates two blank numpy arrays
-        self.array1 = np.array([])
-        self.array2 = np.array([]) 
-
-    # Calulates needed arrays
-    def calcNeededArrays(self, handType):
-        if (len(handType) > 0 ):
-            if (len(handType) >= 1):
-                if (handType[0] == "Right"):
-                    self.array1 = right_hand_array_template
-                elif (handType[0] == "Left"):
-                    self.array1 = left_hand_array_template
-                else:
-                    raise ValueError("Not a possible value")
-            if (len(handType) == 2):
-                if (handType[1] == "Right"):
-                    self.array2 = right_hand_array_template
-                elif (handType[1] == "Left"):
-                    self.array2 = left_hand_array_template
-                else:
-                    raise ValueError("Not a possible value")
-        else:
-            return
-
-    # Fills the first array with data
-    def fillArray1(self, data):
-        if (len(self.array1) > 0):
-            for i in range(0, len(self.array1)):
-                if (len(data) > 0):
-                    # This is just to unpack two tuples safely
-                    dataLayer1 = data[0]
-                    dataLayer2 = dataLayer1[i]
-                
-                    # Sets the values in the array
-                    self.array1[i, 1] = dataLayer2[0]
-                    self.array1[i, 2] = dataLayer2[1]
-                else:
-                    return
-        else:
-            return
-
-    # Fills the second array with data
-    def fillArray2(self, data):
-        if (len(self.array2) > 0):
-            for j in range(0, len(self.array2)):
-                if (len(data) > 1):
-                    # This is just to unpack two tuples safely
-                    dataLayer1 = data[1]
-                    dataLayer2 = dataLayer1[j]
-
-                    # Sets the values in the array
-                    self.array1[j, 1] = dataLayer2[0]
-                    self.array1[j, 2] = dataLayer2[1]
-                else:
-                    return
-        else:
-            return
-
-    # Prints the first array
-    def printArray1(self):
-        print("Array 1: ", self.array1)
-
-    # Prints the second array
-    def printArray2(self):
-        print("Array 2: ", self.array2)
-
-    # Returns the first array
-    def getArray1(self):
-        return self.array1
-
-    # Returns the first array
-    def getArray2(self):
-        return self.array2
