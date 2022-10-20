@@ -131,21 +131,14 @@ class Handedness:
         handsType = []
         
         if results.multi_hand_landmarks != None:
-            #print(results.multi_handedness)
-
             for hand in results.multi_handedness:
-                #print(hand)
-                #print(hand.classification)
-                #print(hand.classification[0])
-                
                 # Add classification data to handsType 
                 handType = hand.classification[0].label
                 handsType.append(handType)
 
                 # Determines what hands are present in the capture
                 self.arrayStorage.calcNeededArrays(handsType)
-            
-            # var = 0
+
             for handLandMarks in results.multi_hand_landmarks:
                 myHand = []
                 
@@ -159,12 +152,6 @@ class Handedness:
                 # Fills the arrays with position data
                 self.arrayStorage.fillArray1(myHands)
                 self.arrayStorage.fillArray2(myHands)
-
-                # Prints the arrays every 50 cycles
-                # if (var % 50 == 0):
-                #     self.arrayStorage.printArray1()
-                #     self.arrayStorage.printArray2()
-                # var += 1
 
         return myHands, handsType
 
