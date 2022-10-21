@@ -16,7 +16,8 @@ gesture = Gesture(cap)
 
 # Main loop
 while cap.isOpened() == True:
-    gesture.liveTracking()  # HandTracking 2.0 method
+    # gesture.liveTracking()  # HandTracking 2.0 method
+    gesture.fingerControl()
 
     # Press q to end the program
     if ( cv.waitKey(1) == ord("q") ):

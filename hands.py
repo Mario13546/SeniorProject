@@ -71,8 +71,8 @@ class HandDetector:
 
                 # Adds cordinates to the landmarkList
                 for ind, landmarkList in enumerate(handLandmarks.landmark):
-                    px, py = int(landmarkList.x * self.width), int(landmarkList.y * self.height)
-                    myLandmarkList.append([px, py, ind])
+                    px, py, pz = int(landmarkList.x * self.width), int(landmarkList.y * self.height), int(landmarkList.z * self.width)
+                    myLandmarkList.append([px, py, pz, ind])
                     xList.append(px)
                     yList.append(py)
 
@@ -102,8 +102,8 @@ class HandDetector:
 
                 # Draw the Rectangle surrounding it
                 cv.rectangle(stream, (boundingBox[0] - 20, boundingBox[1] - 20),
-                                (boundingBox[0] + boundingBox[2] + 20, boundingBox[1] + boundingBox[3] + 20),
-                                (255, 0, 255), 2)
+                                    (boundingBox[0] + boundingBox[2] + 20, boundingBox[1] + boundingBox[3] + 20),
+                                    (255, 0, 255), 2)
                 
                 # Write the identifier
                 cv.putText(stream, myHand["type"], (boundingBox[0] - 30, boundingBox[1] - 30), cv.FONT_HERSHEY_PLAIN,
@@ -143,14 +143,14 @@ class HandDetector:
             # Thumb
             if myHandType == "Right":
                 if myLandmarkList[self.tipIds[0]][0] > myLandmarkList[self.tipIds[0] - 1][0]:
-                    fingers.append(1)
-                else:
                     fingers.append(0)
+                else:
+                    fingers.append(1)
             elif myHandType == "Left":
                 if myLandmarkList[self.tipIds[0]][0] < myLandmarkList[self.tipIds[0] - 1][0]:
-                    fingers.append(1)
-                else:
                     fingers.append(0)
+                else:
+                    fingers.append(1)
 
             # Other 4 Fingers
             for id in range(1, 5):
@@ -160,32 +160,6 @@ class HandDetector:
                     fingers.append(0)
         
         return fingers
-
-    def findDistance(self, point1, point2, stream = None):
-        """
-        Find the distance between two landmarks based on their x/y location.
-        :param point1
-        :param point2
-        :param stream
-        """
-        # Seperates the point tuples  
-        x1, y1 = point1
-        x2, y2 = point2
-        cx, cy = (x1 + x2) // 2, (y1 + y2) // 2
-        
-        # Calcuates the distance between the points
-        length = math.hypot(x2 - x1, y2 - y1)
-        info = (x1, y1, x2, y2, cx, cy)
-
-        if stream is not None:
-            cv.circle(stream, (x1, y1), 15, (255, 0, 255), cv.FILLED)
-            cv.circle(stream, (x2, y2), 15, (255, 0, 255), cv.FILLED)
-            cv.line(stream, (x1, y1), (x2, y2), (255, 0, 255), 3)
-            cv.circle(stream, (cx, cy), 15, (255, 0, 255), cv.FILLED)
-
-            return length, info, stream
-        else:
-            return length, info
 
     def drawHandedness(self, stream, handData, handTypes):
         """
@@ -198,8 +172,8 @@ class HandDetector:
         handsType.append(handTypes)
 
         for hand in myHands:
-            if (hand[2] < len(handsType)):
-                handType = handsType[hand[2]]
+            if (hand[3] < len(handsType)):
+                handType = handsType[hand[3]]
             
             if (handType == 'Right'):
                 handColor = (255, 0, 0)
@@ -207,7 +181,7 @@ class HandDetector:
                 handColor = (0, 0, 255)
             
             for ind in [0, 5, 6, 7, 8]:
-                if hand[2] == ind:
+                if hand[3] == ind:
                     cv.circle(stream, (hand[0], hand[1]), 10, handColor, 5)
 
         return stream
