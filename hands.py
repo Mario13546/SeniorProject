@@ -187,44 +187,6 @@ class HandDetector:
         else:
             return length, info
 
-    def drawHandedness(self, stream):
-        """
-        Draws the handedness on the image.
-        Blue for right and red for left.
-        :param stream
-        """
-        myHands   = []
-        handsType = []
-        
-        if self.results.multi_hand_landmarks != None:
-            for hand in self.results.multi_handedness:
-                # Add classification data to handsType 
-                handType = hand.classification[0].label
-                handsType.append(handType)
-
-            for handLandMarks in self.results.multi_hand_landmarks:
-                myHand = []
-                
-                # Adds entries to the myHand array
-                for landMark in handLandMarks.landmark:
-                    myHand.append((int(landMark.x * self.width), int(landMark.y * self.height)))
-
-                # Adds myHand to myHands
-                myHands.append(myHand)
-
-        for hand, handType in zip(myHands, handsType):
-            if (handType == 'Right'):
-                handColor = (255, 0, 0)
-            elif (handType == 'Left'):
-                handColor = (0, 0, 255)
-            else:
-                handColor = (0, 255, 0)
-            
-            for ind in [0, 5, 6, 7, 8]:
-                cv.circle(stream, hand[ind], 10, handColor, 5)
-
-        return stream
-    
     def drawHandedness(self, stream, handData, handTypes):
         """
         Draws the handedness on the image.
