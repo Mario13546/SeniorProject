@@ -2,17 +2,17 @@
 
 # Import libraries
 import cv2 as cv
-import serial
 
 # Import classes
 from hands import HandDetector
+from serial_communication import SerialComms
 
 # Creates the Gesture Class
 class Gesture:
     # Constructor
-    def __init__(self, capture) -> None:
-        # Create the serial device
-        # self.arduino = serial.Serial(port = 'COM4', baudrate = 9600)
+    def __init__(self, capture, maxHands, detectionCon, minTrackCon) -> None:
+        # Creates a serial object
+        self.arduino = SerialComms()
         
         # Reads capture in init
         self.cap = capture
@@ -20,8 +20,7 @@ class Gesture:
         print("Camera opened sucessfully!")
 
         # Creates an instance of HandDetector
-        global detector
-        detector = HandDetector(maxHands = 2, detectionCon = 0.75, minTrackCon = 0.75)
+        self.detector = HandDetector(maxHands = maxHands, detectionCon = detectionCon, minTrackCon = minTrackCon)
     
     def readCapture(self):
         """
@@ -44,31 +43,36 @@ class Gesture:
         stream = self.readCapture()
 
         # Hand detection 2.0
-        allHands, stream = detector.findHands(stream)
+        allHands, stream = self.detector.findHands(stream)
 
         # Show the stream
         cv.imshow("MediaPipe Hands", stream)
 
-        return allHands, stream
+        return allHands
 
     def fingerControl(self):
         """
         Moves the finger servos.
         """
         # Track hands
-        hands, stream = self.liveTracking()
+        hands = self.liveTracking()
 
         # 
+        #self.arduino.testServos()
+        # 
+        hands = None
         if hands is not None:
             # Hand 1
             if len(hands) >= 1:
                 hand1 = hands[0]
                 landmarkList1 = hand1["landmarkList"]  # List of 21 Landmark points
-                boundingBox1  = hand1["boundingBox"]  # Bounding box info x,y,w,h
-                centerPoint1  = hand1['center']  # center of the hand cx,cy
+                boundingBox1  = hand1["boundingBox"]  # Bounding box info x, y, w, h
+                centerPoint1  = hand1['center']  # center of the hand cx, cy
                 handType1     = hand1["type"]  # Handtype Left or Right
 
-                fingers1      = detector.fingersUp(hand1)
+                fingers1      = self.detector.fingersUp(hand1)
+                fingers1      = fingers1
+                self.arduino.sendData(fingers1)
                 print("Hand1 Fingers:", fingers1)
             
             # Hand 2
@@ -79,5 +83,7 @@ class Gesture:
                 centerPoint2  = hand2['center']  # center of the hand cx,cy
                 handType2     = hand2["type"]  # Hand Type "Left" or "Right"
 
-                fingers2      = detector.fingersUp(hand2)
+                fingers2      = self.detector.fingersUp(hand2)
+                fingers2      = fingers2
+                self.arduino.sendData(fingers2)
                 print("Hand2 Fingers:", fingers2)

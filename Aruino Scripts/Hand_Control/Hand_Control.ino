@@ -21,14 +21,21 @@ String recievedString;
 void setup() {
   // Starts the serial
   Serial.begin(9600);
-  Serial.timout(10);
+  Serial.setTimeout(10);
 
   // Sets up the servos
-  servoThumb.attach(7);
-  servoIndex.attach(9);
-  servoMiddle.attach(11);
-  servoRing.attach(8);
-  servoPinky.attach(10);
+  servoThumb .attach(7);
+  servoIndex .attach(8);
+  servoMiddle.attach(9);
+  servoRing  .attach(10);
+  servoPinky .attach(11);
+
+  // Servos go to init position
+  servoThumb .write(90);
+  servoIndex .write(90);
+  servoMiddle.write(90);
+  servoRing  .write(90);
+  servoPinky .write(90);
 }
 
 // Main loop code goes here
@@ -78,29 +85,27 @@ void loop() {
 }
 
 void recieveData() {
-  while (Serial.available() == true) {
-    char c = Serial.read();
+  char c = Serial.read();
 
-    if (c == '$') {
-      counterStart = true;
+  if (c == '$') {
+    counterStart = true;
+  }
+
+  if (counterStart == true) {
+    if (counter < stringLength) {
+      recievedString = String(recievedString + c);
+      counter++;
     }
-
-    if (counterStart == true) {
-      if (counter < stringLength) {
-        recievedString = String(recievedString + c);
-        counter++;
+    else {
+      for (int i; i < numOfValsRec; i++) {
+        int num = (i * digitsPerValRec) + 1;
+        valsRec[i] = recievedString.substring(num, num + digitsPerValRec).toInt();
       }
-      else {
-        for (int i; i < numOfValsRec; i++) {
-          int num = (i * digitsPerValRec) + 1;
-          valsRec[i] = recievedString.substring(num, num + digitsPerValRec).toInt();
-        }
 
-        // Resets values
-        recievedString = "";
-        counterStart = false;
-        counter = 0;
-      }
+      // Resets values
+      recievedString = "";
+      counterStart = false;
+      counter = 0;
     }
   } 
 }

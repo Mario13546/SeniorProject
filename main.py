@@ -12,15 +12,15 @@ camera = USBCamera(0)
 cap    = camera.getCapture()
 
 # Instance creation
-gesture = Gesture(cap)
+gesture = Gesture(cap, 10, 0.25, 0.25)
 
 # Main loop
 while cap.isOpened() == True:
-    # gesture.liveTracking()  # HandTracking 2.0 method
-    gesture.fingerControl()
+    gesture.liveTracking()
+    # gesture.fingerControl()
 
     # Press q to end the program
     if ( cv.waitKey(1) == ord("q") ):
         print("Process Ended by User")
-        cap.release()
+        cv.destroyAllWindows()
         break
