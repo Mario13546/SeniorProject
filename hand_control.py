@@ -4,7 +4,7 @@
 import cv2 as cv
 
 # Import classes
-from hands import HandDetector
+from hands                import HandDetector
 from serial_communication import SerialComms
 
 # Creates the Gesture Class
@@ -17,7 +17,7 @@ class Gesture:
         # Reads capture in init
         self.cap = capture
         self.readCapture()
-        print("Camera opened sucessfully!")
+        print("Camera opened sucessfully")
 
         # Creates an instance of HandDetector
         self.detector = HandDetector(maxHands = maxHands, detectionCon = detectionCon, minTrackCon = minTrackCon)
@@ -31,7 +31,7 @@ class Gesture:
 
         # If read fails, raise an error
         if not success:
-            raise IOError("Camera error! Failed to start!")
+            raise OSError("Camera error! Failed to start!")
         
         return stream
 
@@ -57,10 +57,10 @@ class Gesture:
         # Track hands
         hands = self.liveTracking()
 
-        # 
-        #self.arduino.testServos()
-        # 
-        hands = None
+        # Controls the servo motors
+        self.arduino.testServos()
+        
+        # Checks if there are any hands
         if hands is not None:
             # Hand 1
             if len(hands) >= 1:

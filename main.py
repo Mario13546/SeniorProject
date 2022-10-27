@@ -12,12 +12,12 @@ camera = USBCamera(0)
 cap    = camera.getCapture()
 
 # Instance creation
-gesture = Gesture(cap, 10, 0.25, 0.25)
+gesture = Gesture(cap, 10, 0.75, 0.75)
 
 # Main loop
 while cap.isOpened() == True:
-    gesture.liveTracking()
-    # gesture.fingerControl()
+    # gesture.liveTracking()
+    gesture.fingerControl()
 
     # Press q to end the program
     if ( cv.waitKey(1) == ord("q") ):

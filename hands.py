@@ -3,8 +3,8 @@
 # Imports
 import mediapipe as mp
 import cv2       as cv
-import math
 
+# Creates the HandDetector Class
 class HandDetector:
     # Constructor
     def __init__(self, maxHands = 2, modelComplexity = 0, detectionCon = 0.5, minTrackCon = 0.5):

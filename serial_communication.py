@@ -5,17 +5,18 @@ import time
 import serial
 import serial.tools.list_ports
 
+# Creates the SerialComms Class
 class SerialComms:
     # Constructor
-    def __init__(self, portNo = None, baudRate = 9600, digits = 1):
+    def __init__(self, portNum = None, baudRate = 9600, digits = 1):
         # Sets variables
-        self.portNo = portNo
+        self.portNum = portNum
         self.baudRate = baudRate
         self.digits = digits
         connected = False
 
         # Port number not given
-        if self.portNo is None:
+        if self.portNum is None:
             ports = list(serial.tools.list_ports.comports())
             for p in ports:
                 if "Arduino" in p.description:
@@ -24,44 +25,49 @@ class SerialComms:
                     self.ser.baudrate = baudRate
                     connected = True
             if not connected:
-                raise IOError("Arduino Not Found. Enter COM Port Number.")
+                raise OSError("Arduino Not Found. Enter COM Port Number.")
         # Port number given
         else:
             try:
-                self.ser = serial.Serial(self.portNo, self.baudRate)
+                self.ser = serial.Serial(self.portNum, self.baudRate)
                 print("Serial Device Connected")
             except:
-                raise IOError("Serial Device Not Connected")
+                raise OSError("Serial Device Not Connected")
     
     # Sends the data over serial
     def sendData(self, data):
-        # Creates some strings
+        # Creates a string
         myString = ""
 
-        # For each entry in the array...
+        # Adds the data to myString
         for d in data:
-            myString += str(int(d)).zfill(self.digits)
+            myString += str(int(d))
+
+        # Encodes the string
+        encodedString = myString.encode()
 
         # Write data to serial
-        self.ser.write(myString.encode())
+        self.ser.write(encodedString)
+
+        return encodedString
     
     # Gets the data from serial
     def getData(self):
-        # Gets the data
+        # Gets and decodes the data
         data = self.ser.read()
         data = data.decode("utf-8")
-        # data = data.split()
         
-        # Return
+        # Return the data
         return data
     
     # Test method
     def testServos(self):
-        # Send the 1's
-        self.sendData([1, 1])
+        # Send 1's
+        self.sendData([1, 1, 1, 1, 1])
         print(self.getData())
-        # time.sleep(1)
+        time.sleep(1)
 
-        # Send the 0's
-        # self.sendData([0, 0, 0, 0, 0])
-        # time.sleep(1)
+        # Send 0's
+        self.sendData([0, 0, 0, 0, 0])
+        print(self.getData())
+        time.sleep(1)

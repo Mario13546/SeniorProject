@@ -1,7 +1,6 @@
 #include <Servo.h>
 
 #define numOfValsRec 5
-#define digitsPerValRec 1
 
 // Objects
 Servo servoThumb;
@@ -12,9 +11,6 @@ Servo servoPinky;
 
 // Variables
 int valsRec[numOfValsRec];
-int stringLength = numOfValsRec * digitsPerValRec + 1; //$00000
-int counter = 0;
-bool counterStart = false;
 String recievedString;
 
 // Setup code goes here
@@ -30,7 +26,7 @@ void setup() {
   servoRing  .attach(10);
   servoPinky .attach(11);
 
-  // Servos go to init position
+  // Servos go to the init position (middle)
   servoThumb .write(90);
   servoIndex .write(90);
   servoMiddle.write(90);
@@ -40,7 +36,7 @@ void setup() {
 
 // Main loop code goes here
 void loop() {
-  // Placeholder
+  // Recieves the data
   recieveData();
 
   // Thumb movement
@@ -85,27 +81,15 @@ void loop() {
 }
 
 void recieveData() {
-  char c = Serial.read();
+  // Stores the serial value in recievedString
+  recievedString = Serial.readString();
 
-  if (c == '$') {
-    counterStart = true;
+  // Sets the value of recievedString
+  for (int i; i < numOfValsRec; i++) {
+    String temp = recievedString.subString(i, i + 1);
+    valsRec[i] = temp.toInt();
   }
 
-  if (counterStart == true) {
-    if (counter < stringLength) {
-      recievedString = String(recievedString + c);
-      counter++;
-    }
-    else {
-      for (int i; i < numOfValsRec; i++) {
-        int num = (i * digitsPerValRec) + 1;
-        valsRec[i] = recievedString.substring(num, num + digitsPerValRec).toInt();
-      }
-
-      // Resets values
-      recievedString = "";
-      counterStart = false;
-      counter = 0;
-    }
-  } 
+  // Resets values
+  recievedString = "";
 }
