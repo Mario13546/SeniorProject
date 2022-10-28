@@ -4,15 +4,15 @@
 import cv2  as cv
 
 # Import Classes
-from hand_control import Gesture
 from camera       import USBCamera
+from hand_control import Gesture
 
 # Create a VideoCapture
 camera = USBCamera(0)
 cap    = camera.getCapture()
 
 # Instance creation
-gesture = Gesture(cap, 10, 0.75, 0.75)
+gesture = Gesture(cap, 2, 0.75, 0.75)
 
 # Main loop
 while cap.isOpened() == True:
