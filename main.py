@@ -1,7 +1,7 @@
 # Created by Alex Pereira
 
 # Import Libraries
-import cv2  as cv
+import cv2 as cv
 
 # Import Classes
 from camera       import USBCamera
@@ -15,7 +15,7 @@ cap    = camera.getCapture()
 gesture = Gesture(cap, 2, 0.75, 0.75)
 
 # Main loop
-while cap.isOpened() == True:
+while (cap.isOpened() == True):
     # gesture.liveTracking()
     gesture.fingerControl()
 

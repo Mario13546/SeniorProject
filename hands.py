@@ -1,8 +1,8 @@
 # Created by Alex Pereira
 
 # Imports
-import mediapipe as mp
 import cv2       as cv
+import mediapipe as mp
 
 # Creates the HandDetector Class
 class HandDetector:
@@ -43,8 +43,8 @@ class HandDetector:
         """
         Finds hands in a stream.
         :param stream
-        :return allHands
-        :return stream
+        :return allDetectedHands
+        :return annotatedStream
         """
         allHands = []
 
@@ -122,15 +122,14 @@ class HandDetector:
                 cv.line(stream, (xmax, ymin), (xmax - l, ymin), colorC, t) # Top Right     (xmax, ymin)
                 cv.line(stream, (xmax, ymin), (xmax, ymin + l), colorC, t) # Top Right     (xmax, ymin)
 
-                # Draw on the handedness dots
-                stream = self.drawHandedness(stream, myHand["landmarkList"], myHand["type"])
-        
         return allHands, stream
 
     def fingersUp(self, myHand):
         """
         Finds how many fingers are open and returns a list.
         Considers left and right hands separately.
+        :param anyHand
+        :return fingerPositionArray
         """
 
         # Creates an array with the entries in the lists
@@ -143,45 +142,20 @@ class HandDetector:
             # Thumb
             if myHandType == "Right":
                 if myLandmarkList[self.tipIds[0]][0] > myLandmarkList[self.tipIds[0] - 1][0]:
-                    fingers.append(0)
-                else:
                     fingers.append(1)
+                else:
+                    fingers.append(0)
             elif myHandType == "Left":
                 if myLandmarkList[self.tipIds[0]][0] < myLandmarkList[self.tipIds[0] - 1][0]:
-                    fingers.append(0)
-                else:
                     fingers.append(1)
+                else:
+                    fingers.append(0)
 
             # Other 4 Fingers
             for id in range(1, 5):
                 if myLandmarkList[self.tipIds[id]][1] < myLandmarkList[self.tipIds[id] - 2][1]:
-                    fingers.append(1)
-                else:
                     fingers.append(0)
+                else:
+                    fingers.append(1)
         
         return fingers
-
-    def drawHandedness(self, stream, handData, handTypes):
-        """
-        Draws the handedness on the image.
-        Blue for right and red for left.
-        :param stream
-        """
-        myHands   = handData
-        handsType = [] 
-        handsType.append(handTypes)
-
-        for hand in myHands:
-            if (hand[3] < len(handsType)):
-                handType = handsType[hand[3]]
-            
-            if (handType == 'Right'):
-                handColor = (255, 0, 0)
-            elif (handType == 'Left'):
-                handColor = (0, 0, 255)
-            
-            for ind in [0, 5, 6, 7, 8]:
-                if hand[3] == ind:
-                    cv.circle(stream, (hand[0], hand[1]), 10, handColor, 5)
-
-        return stream

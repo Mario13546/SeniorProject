@@ -3,14 +3,20 @@
 # Import libraries
 import cv2 as cv
 
-# Import classes
+#  Import classes
 from hands                import HandDetector
 from serial_communication import SerialComms
 
 # Creates the Gesture Class
 class Gesture:
-    # Constructor
     def __init__(self, capture, maxHands, detectionCon, minTrackCon) -> None:
+        """
+        Constructor for the Gestures class.
+        :param videoCapture
+        :param maxNumberOfHands
+        :param minimumDetectionConfidence
+        :param minimumTrackingConfidence
+        """
         # Creates a serial object
         self.arduino = SerialComms()
         
@@ -24,7 +30,8 @@ class Gesture:
     
     def readCapture(self):
         """
-        Reads the capture.
+        Reads the VideoCapture capture.
+        :return videoStream
         """
         # Reads the capture
         success, stream = self.cap.read()
@@ -38,6 +45,7 @@ class Gesture:
     def liveTracking(self):
         """
         Similar to the old liveTracking() method and to be used for display purposes.
+        :return allDetectedHands
         """
         # Reads the capture
         stream = self.readCapture()
@@ -52,14 +60,11 @@ class Gesture:
 
     def fingerControl(self):
         """
-        Moves the finger servos.
+        Writes data to the Arduino to move the finger servos.
         """
         # Track hands
         hands = self.liveTracking()
 
-        # Controls the servo motors
-        self.arduino.testServos()
-        
         # Checks if there are any hands
         if hands is not None:
             # Hand 1

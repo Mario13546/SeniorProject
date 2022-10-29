@@ -1,6 +1,5 @@
+// Imports
 #include <Servo.h>
-
-#define numOfValsRec 5
 
 // Objects
 Servo servoThumb;
@@ -10,8 +9,7 @@ Servo servoRing;
 Servo servoPinky;
 
 // Variables
-int valsRec[numOfValsRec];
-String recievedString;
+String myString;
 
 // Setup code goes here
 void setup() {
@@ -20,27 +18,30 @@ void setup() {
   Serial.setTimeout(10);
 
   // Sets up the servos
-  servoThumb .attach(7);
-  servoIndex .attach(8);
-  servoMiddle.attach(9);
-  servoRing  .attach(10);
-  servoPinky .attach(11);
+  servoThumb .attach(8);
+  servoIndex .attach(9);
+  servoMiddle.attach(10);
+  servoRing  .attach(11);
+  servoPinky .attach(12);
 
   // Servos go to the init position (middle)
-  servoThumb .write(90);
-  servoIndex .write(90);
-  servoMiddle.write(90);
-  servoRing  .write(90);
-  servoPinky .write(90);
+  servoThumb .write(180);
+  servoIndex .write(180);
+  servoMiddle.write(180);
+  servoRing  .write(180);
+  servoPinky .write(180);
 }
 
 // Main loop code goes here
 void loop() {
+  // Idles when there is no data
+  while (Serial.available() == 0) { }
+
   // Recieves the data
-  recieveData();
+  myString = Serial.readStringUntil('\r');
 
   // Thumb movement
-  if (valsRec[0] == 1) {
+  if (myString[0] == '1') {
     servoThumb.write(180);
   }
   else {
@@ -48,7 +49,7 @@ void loop() {
   }
 
   // Index movement
-  if (valsRec[1] == 1) {
+  if (myString[1] == '1') {
     servoIndex.write(180);
   }
   else {
@@ -56,7 +57,7 @@ void loop() {
   }
 
   // Middle movement
-  if (valsRec[2] == 1) {
+  if (myString[2] == '1') {
     servoMiddle.write(180);
   }
   else {
@@ -64,7 +65,7 @@ void loop() {
   }
 
   // Ring movement
-  if (valsRec[3] == 1) {
+  if (myString[3] == '1') {
     servoRing.write(180);
   }
   else {
@@ -72,24 +73,10 @@ void loop() {
   }
 
   // Pinky movement
-  if (valsRec[4] == 1) {
+  if (myString[4] == '1') {
     servoPinky.write(180);
   }
   else {
     servoPinky.write(0);
   }
-}
-
-void recieveData() {
-  // Stores the serial value in recievedString
-  recievedString = Serial.readString();
-
-  // Sets the value of recievedString
-  for (int i; i < numOfValsRec; i++) {
-    String temp = recievedString.subString(i, i + 1);
-    valsRec[i] = temp.toInt();
-  }
-
-  // Resets values
-  recievedString = "";
 }
