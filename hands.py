@@ -33,7 +33,7 @@ class HandDetector:
 
         # Creates the ID lists
         self.tipIds       = [4, 8, 12, 16, 20]
-        self.baseIds      = [2, 6, 10, 12, 16]
+        self.baseIds      = [2, 6, 10, 14, 18]
 
         # Variables
         self.width, self.height, self.center = 0, 0, 0
