@@ -5,8 +5,8 @@
 
 <h2> Prerequisites </h2>
 <p>
-	<ul>
-    <li>A <a href="https://www.python.org/downloads/">Python 3</a> environment</li>
+  <ul>
+    <li>The <a href="https://www.python.org/downloads/">Python 3</a> environment</li>
     <li>The <a href="https://pypi.org/project/mediapipe/">mediapipe</a> package</li>
     <li>The <a href="https://pypi.org/project/serial/">serial</a> package</li>
     <li>The <a href="https://pypi.org/project/pyserial/">pySerial</a> extension</li>
@@ -17,12 +17,12 @@
 
 <h2> Construction </h2>
 <p>
-Not yet completed...
+	Not yet completed...
 </p>
 
 <h2> Arduino Wiring </h2>
 <p>
-Not yet completed...
+	Not yet completed...
 </p>
 
 <h2> Usage </h2>
@@ -32,5 +32,5 @@ Not yet completed...
 
 <h2> Functionaliy </h2>
 <p>
-  This program can determine the position of your fingers and hand and abjust an InMoov preosthetic hand accordingly.
+	This program can determine the position of your fingers and hand and adjust an InMoov prosthetic hand accordingly.
 </p>
