@@ -14,28 +14,25 @@ class SerialComms:
         :param baudRate
         """
         # Sets variables
-        self.portNum = portNum
-        self.baudRate = baudRate
         connected = False
 
         # Port number not given
-        if self.portNum is None:
+        if portNum is None:
             ports = list(serial.tools.list_ports.comports())
-            for p in ports:
-                if "Arduino" in p.description:
-                    print(f'{p.description} Connected')
-                    self.ser = serial.Serial(p.device)
-                    self.ser.baudrate = baudRate
+            for port in ports:
+                if "Arduino" in port.description:
+                    print(f'{port.description} Connected')
+                    self.ser = serial.Serial(port.device, baudRate)
                     connected = True
             if not connected:
-                raise OSError("Arduino Not Found. Enter COM Port Number.")
+                raise OSError("Arduino not found. Enter COM port.")
         # Port number given
         else:
             try:
-                self.ser = serial.Serial(self.portNum, self.baudRate)
-                print("Serial Device Connected")
+                self.ser = serial.Serial(portNum, baudRate)
+                print("Connected to Serial Device")
             except:
-                raise OSError("Serial Device Not Connected")
+                raise OSError("Failed to connect to Serial Device")
 
     def sendData(self, data):
         """

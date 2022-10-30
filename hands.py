@@ -33,8 +33,7 @@ class HandDetector:
 
         # Creates the ID lists
         self.tipIds       = [4, 8, 12, 16, 20]
-        self.fingers      = []
-        self.landmarkList = []
+        self.baseIds      = [2, 6, 10, 12, 16]
 
         # Variables
         self.width, self.height, self.center = 0, 0, 0
@@ -51,7 +50,7 @@ class HandDetector:
         # Flips the image
         stream = cv.flip(stream, 1)
 
-        # Converts the image to BGR
+        # Converts the image to RGB
         streamRGB = cv.cvtColor(stream, cv.COLOR_BGR2RGB)
         self.results = self.hands.process(streamRGB)
         stream.flags.writeable = False
@@ -100,14 +99,13 @@ class HandDetector:
                                                 self.mp_drawing_styles.get_default_hand_landmarks_style(),
                                                 self.mp_drawing_styles.get_default_hand_connections_style())
 
-                # Draw the Rectangle surrounding it
+                # Draw the bounding box
                 cv.rectangle(stream, (boundingBox[0] - 20, boundingBox[1] - 20),
                                     (boundingBox[0] + boundingBox[2] + 20, boundingBox[1] + boundingBox[3] + 20),
                                     (255, 0, 255), 2)
                 
                 # Write the identifier
-                cv.putText(stream, myHand["type"], (boundingBox[0] - 30, boundingBox[1] - 30), cv.FONT_HERSHEY_PLAIN,
-                            2, (255, 0, 255), 2)
+                cv.putText(stream, myHand["type"], (boundingBox[0] - 30, boundingBox[1] - 30), cv.FONT_HERSHEY_PLAIN, 2, (255, 0, 255), 2)
                 
                 # Draws on corners to the rectangle because they're cool
                 colorC    = (0, 255, 0)
@@ -132,30 +130,45 @@ class HandDetector:
         :return fingerPositionArray
         """
 
-        # Creates an array with the entries in the lists
+        # Creates a blank array
+        fingers = []
+
+        # Creates arrays with the entries in the dictionary
         myHandType     = myHand["type"]
         myLandmarkList = myHand["landmarkList"]
 
         if self.results.multi_hand_landmarks:
-            fingers = []
-
             # Thumb
             if myHandType == "Right":
-                if myLandmarkList[self.tipIds[0]][0] > myLandmarkList[self.tipIds[0] - 1][0]:
-                    fingers.append(1)
+                # Helps see the thumb correctly even if the palm is back of the hand is facing the camera
+                if (myLandmarkList[self.tipIds[0]][0] > myLandmarkList[self.tipIds[4]][0]):
+                    if (myLandmarkList[self.tipIds[0]][0] > myLandmarkList[self.tipIds[0] - 2][0]):
+                        fingers.append(1)
+                    else:
+                        fingers.append(0)
                 else:
-                    fingers.append(0)
+                    if (myLandmarkList[self.tipIds[0]][0] > myLandmarkList[self.tipIds[0] - 2][0]):
+                        fingers.append(0)
+                    else:
+                        fingers.append(1)
             elif myHandType == "Left":
-                if myLandmarkList[self.tipIds[0]][0] < myLandmarkList[self.tipIds[0] - 1][0]:
-                    fingers.append(1)
+                # Helps see the thumb correctly even if the palm is back of the hand is facing the camera
+                if (myLandmarkList[self.tipIds[0]][0] < myLandmarkList[self.tipIds[4]][0]):
+                    if (myLandmarkList[self.tipIds[0]][0] < myLandmarkList[self.baseIds[0]][0]):
+                        fingers.append(1)
+                    else:
+                        fingers.append(0)
                 else:
-                    fingers.append(0)
+                    if (myLandmarkList[self.tipIds[0]][0] < myLandmarkList[self.baseIds[0]][0]):
+                        fingers.append(0)
+                    else:
+                        fingers.append(1)
 
             # Other 4 Fingers
             for id in range(1, 5):
-                if myLandmarkList[self.tipIds[id]][1] < myLandmarkList[self.tipIds[id] - 2][1]:
-                    fingers.append(0)
-                else:
+                if (myLandmarkList[self.tipIds[id]][1] < myLandmarkList[self.baseIds[id]][1]):
                     fingers.append(1)
+                else:
+                    fingers.append(0)
         
         return fingers
