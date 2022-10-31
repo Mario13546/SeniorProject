@@ -32,8 +32,11 @@ class HandDetector:
         self.mp_drawing_styles = mp.solutions.drawing_styles
 
         # Creates the ID lists
-        self.tipIds       = [4, 8, 12, 16, 20]
-        self.baseIds      = [2, 6, 10, 14, 18]
+        self.tipIds      = [4, 8, 12, 16, 20]
+        self.baseIds     = [0, 0, 0, 0, 0]
+
+        for id in range(0, len(self.tipIds)):
+            self.baseIds[id] = self.tipIds[id] - 3
 
         # Variables
         self.width, self.height, self.center = 0, 0, 0
