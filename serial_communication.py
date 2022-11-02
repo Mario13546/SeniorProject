@@ -39,18 +39,24 @@ class SerialComms:
         Sends the data over serial.
         :param dataArray
         """
-        # Creates a string
-        myString = ""
+        # Defines the length of the outputs
+        numLength = 3
+
+        # Creates the holder string
+        myString = str(numLength)
 
         # Adds the data to myString
         for d in data:
-            myString += str(int(d))
+            myString += str(int(d)).zfill(numLength)
 
         # Adds the terminating character to the end
         myString += "\r"
 
         # Write data to serial
         self.ser.write(myString.encode())
+
+        # Returns the string for debugging
+        return myString
 
     def getData(self):
         """

@@ -19,7 +19,7 @@ class Gesture:
         """
         # Creates a serial object
         self.arduino = SerialComms()
-        
+
         # Reads capture in init
         self.cap = capture
         self.readCapture()
@@ -70,25 +70,15 @@ class Gesture:
             # Hand 1
             if len(hands) >= 1:
                 hand1 = hands[0]
-                landmarkList1 = hand1["landmarkList"]  # List of 21 Landmark points
-                boundingBox1  = hand1["boundingBox"]  # Bounding box info x, y, w, h
-                centerPoint1  = hand1['center']  # center of the hand cx, cy
-                handType1     = hand1["type"]  # Handtype Left or Right
 
                 fingers1      = self.detector.fingersUp(hand1)
-                fingers1      = fingers1
-                self.arduino.sendData(fingers1)
-                # print("Hand1 Fingers:", fingers1)
-            
+                returned1     = self.arduino.sendData(fingers1)
+                print("Hand1 Fingers:", returned1)
+
             # Hand 2
             if len(hands) >= 2:
                 hand2 = hands[1]
-                landmarkList2 = hand2["landmarkList"]  # List of 21 Landmark points
-                boundingBox2  = hand2["boundingBox"]  # Bounding box info x,y,w,h
-                centerPoint2  = hand2['center']  # center of the hand cx,cy
-                handType2     = hand2["type"]  # Hand Type "Left" or "Right"
 
                 fingers2      = self.detector.fingersUp(hand2)
-                fingers2      = fingers2
-                self.arduino.sendData(fingers2)
-                # print("Hand2 Fingers:", fingers2)
+                returned2     = self.arduino.sendData(fingers2)
+                print("Hand2 Fingers:", returned2)
