@@ -203,7 +203,7 @@ class HandDetector:
 
         # Determines what to return
         if (self.fingerDistance[finger] > .15):
-            # Returns the actual value if the distance is greater than 1/10th the max
+            # Returns the actual value if the distance is greater than 0.15 the max
             return int(self.fingerDistance[finger] * servoRange)
         else:
             # Returns 0 if otherwise
