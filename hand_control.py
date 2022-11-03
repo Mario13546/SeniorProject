@@ -9,7 +9,7 @@ from serial_communication import SerialComms
 
 # Creates the Gesture Class
 class Gesture:
-    def __init__(self, capture, maxHands, detectionCon, minTrackCon) -> None:
+    def __init__(self, capture, maxHands, detectionCon, minTrackCon, testMode = False) -> None:
         """
         Constructor for the Gestures class.
         :param videoCapture
@@ -18,7 +18,7 @@ class Gesture:
         :param minimumTrackingConfidence
         """
         # Creates a serial object
-        self.arduino = SerialComms()
+        self.arduino = SerialComms(testMode = testMode)
 
         # Reads capture in init
         self.cap = capture
@@ -71,14 +71,14 @@ class Gesture:
             if len(hands) >= 1:
                 hand1 = hands[0]
 
-                fingers1      = self.detector.fingersUp(hand1)
-                returned1     = self.arduino.sendData(fingers1)
+                fingers1  = self.detector.fingersUp(hand1)
+                returned1 = self.arduino.sendData(fingers1)
                 print("Hand1 Fingers:", returned1)
 
             # Hand 2
             if len(hands) >= 2:
                 hand2 = hands[1]
 
-                fingers2      = self.detector.fingersUp(hand2)
-                returned2     = self.arduino.sendData(fingers2)
+                fingers2  = self.detector.fingersUp(hand2)
+                returned2 = self.arduino.sendData(fingers2)
                 print("Hand2 Fingers:", returned2)

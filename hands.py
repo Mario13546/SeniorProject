@@ -202,12 +202,15 @@ class HandDetector:
         self.fingerDistance[finger] = baseToTip / self.maxFingerLength[finger]
 
         # Determines what to return
-        if (self.fingerDistance[finger] > .15):
-            # Returns the actual value if the distance is greater than 0.15 the max
-            return int(self.fingerDistance[finger] * servoRange)
-        else:
-            # Returns 0 if otherwise
+        if (self.fingerDistance[finger] < .15):
+            # Returns 0 if the distance is less than 0.15 the max
             return 0
+        elif (self.fingerDistance[finger] > .85):
+            # Returns 1 if the distance is greater than than 0.85 the max
+            return 1
+        else:
+            # Returns the actual value if otherwise
+            return int(self.fingerDistance[finger] * servoRange)
 
     def calcLandmarkDist(self, id1, id2):
         """
