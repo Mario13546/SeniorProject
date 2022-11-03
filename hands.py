@@ -185,7 +185,7 @@ class HandDetector:
         :param fingerInQuestion (0 for thumb, 1 for index, etc.)
         """
         # Creates variables
-        total      = 0
+        total = 0
 
         # Adds up the different segments
         for i in range(self.baseIds[finger], self.tipIds[finger]):
@@ -219,8 +219,10 @@ class HandDetector:
         landmarkList = self.tempLandmarkList
 
         # Gets the position data
-        x1, y1 = landmarkList[id1][0], landmarkList[id1][1]
-        x2, y2 = landmarkList[id2][0], landmarkList[id2][1]
+        x1 = landmarkList[id1][0]
+        y1 = landmarkList[id1][1]
+        x2 = landmarkList[id2][0]
+        y2 = landmarkList[id2][1]
 
         # Calculates the distance
         distance = math.dist((x1, y1), (x2, y2))

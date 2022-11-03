@@ -13,6 +13,7 @@ Servo servoPinky;
 int index;
 int indexUp;
 int numDigits;
+int fingerPos;
 String myString;
 
 // Setup code goes here
@@ -30,12 +31,12 @@ void setup() {
   servoPinky .attach(12);
 
   // Servos go to the init position
-  servoRotate.write( 90);
-  servoThumb .write(180);
-  servoIndex .write(180);
-  servoMiddle.write(180);
-  servoRing  .write(180);
-  servoPinky .write(180);
+  servoRotate.write(90);
+  servoThumb .write(90);
+  servoIndex .write(90);
+  servoMiddle.write(90);
+  servoRing  .write(90);
+  servoPinky .write(90);
 
   // Initialize the built in LED
   pinMode(LED_BUILTIN, OUTPUT);
@@ -55,64 +56,64 @@ void loop() {
   // Recieves the data
   myString = Serial.readStringUntil('\r');
 
-  // Sets the number of digits per number
-  numDigits = int(myString[0]);
+  // Sets the digits per number
+  numDigits = 3;
 
   // Sets up the indices
-  index   = 1;
+  index   = 0;
   indexUp = index + numDigits;
 
   // Thumb movement
   if (myString.substring(index, indexUp).toInt() != 0) {
-    servoThumb.write(int(myString[0]));
+    servoThumb.write(myString.substring(index, indexUp).toInt());
   }
   else {
     servoThumb.write(0);
   }
 
   // Increments the indices
-  index   += 3;
-  indexUp += 3;
+  index   += numDigits;
+  indexUp += numDigits;
 
   // Index movement
   if (myString.substring(index, indexUp).toInt() != 0) {
-    servoIndex.write(int(myString[1]));
+    servoIndex.write(myString.substring(index, indexUp).toInt());
   }
   else {
     servoIndex.write(0);
   }
 
   // Increments the indices
-  index   += 3;
-  indexUp += 3;
+  index   += numDigits;
+  indexUp += numDigits;
 
   // Middle movement
   if (myString.substring(index, indexUp).toInt() != 0) {
-    servoMiddle.write(int(myString[2]));
+    servoMiddle.write(myString.substring(index, indexUp).toInt());
   }
   else {
     servoMiddle.write(0);
   }
 
   // Increments the indices
-  index   += 3;
-  indexUp += 3;
+  index   += numDigits;
+  indexUp += numDigits;
 
   // Ring movement
   if (myString.substring(index, indexUp).toInt() != 0) {
-    servoRing.write(int(myString[3]));
+    servoRing.write(myString.substring(index, indexUp).toInt());
   }
   else {
     servoRing.write(0);
   }
 
   // Increments the indices
-  index   += 3;
-  indexUp += 3;
+  index   += numDigits;
+  indexUp += numDigits;
 
   // Pinky movement
   if (myString.substring(index, indexUp).toInt() != 0) {
-    servoPinky.write(int(myString[4]));
+    servoPinky.write(myString.substring(index, indexUp).toInt());
   }
   else {
     servoPinky.write(0);

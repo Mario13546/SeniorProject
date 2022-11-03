@@ -39,15 +39,12 @@ class SerialComms:
         Sends the data over serial.
         :param dataArray
         """
-        # Defines the length of the outputs
-        numLength = 3
-
         # Creates the holder string
-        myString = str(numLength)
+        myString = ""
 
         # Adds the data to myString
         for d in data:
-            myString += str(int(d)).zfill(numLength)
+            myString += str(int(d)).zfill(3)
 
         # Adds the terminating character to the end
         myString += "\r"
