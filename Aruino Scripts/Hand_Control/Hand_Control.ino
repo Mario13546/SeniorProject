@@ -64,58 +64,33 @@ void loop() {
   indexUp = index + numDigits;
 
   // Thumb movement
-  if (myString.substring(index, indexUp).toInt() != 0) {
-    servoThumb.write(myString.substring(index, indexUp).toInt());
-  }
-  else {
-    servoThumb.write(0);
-  }
+  servoThumb.write(myString.substring(index, indexUp).toInt());
 
   // Increments the indices
   index   += numDigits;
   indexUp += numDigits;
 
   // Index movement
-  if (myString.substring(index, indexUp).toInt() != 0) {
-    servoIndex.write(myString.substring(index, indexUp).toInt());
-  }
-  else {
-    servoIndex.write(0);
-  }
+  servoIndex.write(myString.substring(index, indexUp).toInt());
 
   // Increments the indices
   index   += numDigits;
   indexUp += numDigits;
 
   // Middle movement
-  if (myString.substring(index, indexUp).toInt() != 0) {
-    servoMiddle.write(myString.substring(index, indexUp).toInt());
-  }
-  else {
-    servoMiddle.write(0);
-  }
+  servoMiddle.write(myString.substring(index, indexUp).toInt());
 
   // Increments the indices
   index   += numDigits;
   indexUp += numDigits;
 
   // Ring movement
-  if (myString.substring(index, indexUp).toInt() != 0) {
-    servoRing.write(myString.substring(index, indexUp).toInt());
-  }
-  else {
-    servoRing.write(0);
-  }
+  servoRing.write(myString.substring(index, indexUp).toInt());
 
   // Increments the indices
   index   += numDigits;
   indexUp += numDigits;
 
   // Pinky movement
-  if (myString.substring(index, indexUp).toInt() != 0) {
-    servoPinky.write(myString.substring(index, indexUp).toInt());
-  }
-  else {
-    servoPinky.write(0);
-  }
+  servoPinky.write(myString.substring(index, indexUp).toInt());
 }

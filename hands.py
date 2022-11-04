@@ -1,9 +1,12 @@
 # Created by Alex Pereira
 
-# Imports
+# Import Libraries
 import math
 import cv2       as cv
 import mediapipe as mp
+
+# Import Classes
+from filter import GestureFilter
 
 # Creates the HandDetector Class
 class HandDetector:
@@ -39,6 +42,9 @@ class HandDetector:
         # Creates the finger length arrays
         self.fingerDistance  = [0, 0, 0, 0, 0]
         self.maxFingerLength = [0, 0, 0, 0, 0]
+
+        # Creates an instance of GestureFilter
+        self.gFilter = GestureFilter()
 
         # Variables
         self.width, self.height, self.center = 0, 0, 0
@@ -134,7 +140,6 @@ class HandDetector:
         :param anyHand
         :return fingerPositionArray
         """
-
         # Creates a blank array
         fingers = []
 
@@ -177,6 +182,9 @@ class HandDetector:
                 else:
                     fingers.append(0)
         
+        # Checks for inappropriate gestures
+        fingers = self.gFilter.checkMiddle(fingers)
+        
         return fingers
 
     def getFingerLength(self, finger, servoRange = 180):
@@ -207,7 +215,7 @@ class HandDetector:
             return 0
         elif (self.fingerDistance[finger] > .85):
             # Returns 1 if the distance is greater than than 0.85 the max
-            return 1
+            return servoRange
         else:
             # Returns the actual value if otherwise
             return int(self.fingerDistance[finger] * servoRange)
