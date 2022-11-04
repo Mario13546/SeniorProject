@@ -12,7 +12,7 @@ camera = USBCamera(0)
 cap    = camera.getCapture()
 
 # Instance creation
-gesture = Gesture(cap, 1, 0.75, 0.75, True)
+gesture = Gesture(cap, 1, 0.75, 0.75, False)
 
 # Main loop
 while (cap.isOpened() == True):
