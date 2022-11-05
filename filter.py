@@ -1,6 +1,6 @@
 # Created by Alex Pereira
 
-# Creates the FingerFilter Class
+# Creates the GestureFilter Class
 class GestureFilter:
     def __init__(self) -> None:
         """
@@ -12,11 +12,25 @@ class GestureFilter:
         self.middleId = 2
         self.ringId   = 3
         self.pinkyId  = 4
-
-    def checkMiddle(self, fingerPos, servoRange = 180):
+    
+    def runAllFilters(self, fingers):
         """
-        Checks for the middle finger.
-        :param theFingerPositionArray
+        Runs all of the filters in this class
+        @param fingerPositionArray
+        """
+        # Makes the parameter local
+        fingerPos = fingers
+
+        # Middle finger censor
+        fingerPos = self.censorMiddleFinger(fingerPos)
+
+        # Returns the position array
+        return fingerPos
+
+    def censorMiddleFinger(self, fingerPos, servoRange = 180):
+        """
+        Censors the middle finger.
+        @param fingerPositionArray
         """
         # Creates variables
         numFingersUp   = 0
@@ -32,14 +46,14 @@ class GestureFilter:
                 numFingersUp += 1
             else:
                 numFingersUp += 0
-        
+
         # Censors the finger
         if ((middleFingerUp == True) & (numFingersUp == 1)):
-            # Adjusted the position array, removing the finger
+            # Adjusts the position array, removing the middle finger
             fingerPos[self.middleId] = 0
         else:
             # Does nothing to the position array
             fingerPos = fingerPos
-        
+
         # Returns the position array
         return fingerPos

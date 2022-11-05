@@ -12,7 +12,7 @@ class USBCamera:
     def __init__(self, camNum) -> None:
         """
         Constructor for USBCamera.
-        :param camNumber
+        @param camNumber
         """
         # Sets camera properties
         self.camNum = camNum
@@ -47,6 +47,7 @@ class USBCamera:
     def getCapture(self):
         """
         Returns the created capture.
+        @return createdCapture
         """
         # Returns the capture
         return self.cap

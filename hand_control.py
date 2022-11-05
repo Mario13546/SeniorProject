@@ -12,10 +12,10 @@ class Gesture:
     def __init__(self, capture, maxHands, detectionCon, minTrackCon, testMode = False) -> None:
         """
         Constructor for the Gestures class.
-        :param videoCapture
-        :param maxNumberOfHands
-        :param minimumDetectionConfidence
-        :param minimumTrackingConfidence
+        @param videoCapture
+        @param maxNumberOfHands
+        @param minimumDetectionConfidence
+        @param minimumTrackingConfidence
         """
         # Creates a serial object
         self.arduino = SerialComms(testMode = testMode)
@@ -31,7 +31,7 @@ class Gesture:
     def readCapture(self):
         """
         Reads the VideoCapture capture.
-        :return videoStream
+        @return videoStream
         """
         # Reads the capture
         success, stream = self.cap.read()
@@ -45,7 +45,7 @@ class Gesture:
     def liveTracking(self):
         """
         Similar to the old liveTracking() method and to be used for display purposes.
-        :return allDetectedHands
+        @return allDetectedHands
         """
         # Reads the capture
         stream = self.readCapture()
