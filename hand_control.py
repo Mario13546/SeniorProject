@@ -73,7 +73,7 @@ class Gesture:
 
                 fingers1  = self.detector.fingersUp(hand1)
                 returned1 = self.arduino.sendData(fingers1)
-                print("Hand1 Fingers:", returned1)
+                # print("Hand1 Fingers:", returned1)
 
             # Hand 2
             if len(hands) >= 2:
@@ -81,4 +81,4 @@ class Gesture:
 
                 fingers2  = self.detector.fingersUp(hand2)
                 returned2 = self.arduino.sendData(fingers2)
-                print("Hand2 Fingers:", returned2)
+                # print("Hand2 Fingers:", returned2)

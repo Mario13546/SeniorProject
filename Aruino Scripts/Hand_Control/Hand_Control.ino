@@ -2,7 +2,7 @@
 #include <Servo.h>
 
 // Objects
-Servo servoRotate;
+Servo servoWrist;
 Servo servoThumb;
 Servo servoIndex;
 Servo servoMiddle;
@@ -23,7 +23,7 @@ void setup() {
   Serial.setTimeout(10);
 
   // Sets up the servos
-  servoRotate.attach(7);
+  servoWrist .attach(7);
   servoThumb .attach(8);
   servoIndex .attach(9);
   servoMiddle.attach(10);
@@ -31,7 +31,7 @@ void setup() {
   servoPinky .attach(12);
 
   // Servos go to the init position
-  servoRotate.write(90);
+  servoWrist .write(90);
   servoThumb .write(90);
   servoIndex .write(90);
   servoMiddle.write(90);
@@ -93,4 +93,11 @@ void loop() {
 
   // Pinky movement
   servoPinky.write(myString.substring(index, indexUp).toInt());
+
+  // Increments the indices
+  index   += numDigits;
+  indexUp += numDigits;
+
+  // Wrist movement
+  servoWrist.write(myString.substring(index, indexUp).toInt());
 }
