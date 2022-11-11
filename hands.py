@@ -14,10 +14,10 @@ class HandDetector:
     def __init__(self, maxHands = 2, modelComplexity = 0, detectionCon = 0.5, minTrackCon = 0.5):
         """
         Constructor for HandDetector.
-        :param maxHands
-        :param modelComplexity
-        :param detectionConfidence
-        :param minimumTrackingConfidence
+        @param maxHands
+        @param modelComplexity
+        @param detectionConfidence
+        @param minimumTrackingConfidence
         """
         # Initiaizes the MediaPipe Hands solution
         self.maxHands        = maxHands
@@ -52,9 +52,9 @@ class HandDetector:
     def findHands(self, stream):
         """
         Finds hands in a stream.
-        :param stream
-        :return allDetectedHands
-        :return annotatedStream
+        @param stream
+        @return allDetectedHands
+        @return annotatedStream
         """
         allHands = []
 
@@ -137,8 +137,8 @@ class HandDetector:
         """
         Finds how many fingers are open and returns a list.
         Considers left and right hands separately.
-        :param anyHand
-        :return fingerPositionArray
+        @param anyHand
+        @return fingerPositionArray
         """
         # Creates a blank array
         fingers = []
@@ -181,16 +181,16 @@ class HandDetector:
                     fingers.append(self.getFingerLength(id))
                 else:
                     fingers.append(0)
-        
-        # Checks for inappropriate gestures
-        fingers = self.gFilter.checkMiddle(fingers)
-        
+
+        # Filter inappropriate gestures
+        fingers = self.gFilter.runAllFilters(fingers)
+
         return fingers
 
     def getFingerLength(self, finger, servoRange = 180):
         """
         Calculates the max length of a finger.
-        :param fingerInQuestion (0 for thumb, 1 for index, etc.)
+        @param fingerInQuestion (0 for thumb, 1 for index, etc.)
         """
         # Creates variables
         total = 0
@@ -223,8 +223,8 @@ class HandDetector:
     def calcLandmarkDist(self, id1, id2):
         """
         Caclulates and returns the distance between two landmarks.
-        :param id1
-        :param id2
+        @param id1
+        @param id2
         """
         # Creates a local landmarkList
         landmarkList = self.tempLandmarkList
