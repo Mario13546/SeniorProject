@@ -67,18 +67,8 @@ class Gesture:
 
         # Checks if there are any hands
         if hands is not None:
-            # Hand 1
-            if len(hands) >= 1:
-                hand1 = hands[0]
-
-                fingers1  = self.detector.fingersUp(hand1)
-                returned1 = self.arduino.sendData(fingers1)
-                # print("Hand1 Fingers:", returned1)
-
-            # Hand 2
-            if len(hands) >= 2:
-                hand2 = hands[1]
-
-                fingers2  = self.detector.fingersUp(hand2)
-                returned2 = self.arduino.sendData(fingers2)
-                # print("Hand2 Fingers:", returned2)
+            # Sends the hand data to the arduino
+            for ind, hand in enumerate(hands):
+                fingers     = self.detector.fingersUp(hand)
+                valReturned = self.arduino.sendData(fingers)
+                print("Hand" + str(ind) + " Fingers:", valReturned)

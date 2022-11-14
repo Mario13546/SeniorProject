@@ -188,7 +188,12 @@ class HandDetector:
                     fingerPos.append(0)
 
             # Wrist rotation
-            fingerPos.append(self.calcWristRotation())
+            if ((myLandmarkList[self.tipIds[0]][z] < 0) & (myLandmarkList[self.tipIds[4]][z] > 0)):
+                # If the pinky is behind the thumb
+                fingerPos.append(180)
+            else:
+                # Anything else
+                fingerPos.append(self.calcWristRotation())
 
         # Filter inappropriate gestures
         fingerPos = self.gFilter.runAllFilters(fingerPos)
@@ -199,6 +204,7 @@ class HandDetector:
         """
         Calculates the max length of a finger.
         @param fingerInQuestion (0 for thumb, 1 for index, etc.)
+        @param servoRange
         """
         # Creates variables
         total = 0
@@ -231,9 +237,10 @@ class HandDetector:
     def calcWristRotation(self, servoRange = 180):
         """
         Calculates the rotation of the wrist.
+        @param servoRange
         """
         # Calculates the X Distance
-        xDist = self.calcLandmarkDist(self.tipIds[0], self.tipIds[4], 1)
+        xDist = self.calcLandmarkDist(0, self.baseIds[4], 1)
         
         # Overwrites the previous value if the new one is larger
         if (xDist > self.maxHandWidth):
@@ -243,11 +250,11 @@ class HandDetector:
         self.HandDistance = xDist / self.maxHandWidth
 
         # Determines what to return
-        if (self.HandDistance < .15):
-            # Returns 0 if the distance is less than 0.15 the max
+        if (self.HandDistance < .20):
+            # Returns 0 if the distance is less than 20% the max
             return 0
         elif (self.HandDistance > .80):
-            # Returns 180 if the distance is greater than than 0.80 the max
+            # Returns 180 if the distance is greater than than 80% the max
             return servoRange
         else:
             # Returns the actual value if otherwise
@@ -258,6 +265,7 @@ class HandDetector:
         Caclulates and returns the distance between two landmarks.
         @param id1 (0 through 20)
         @param id2 (0 through 20)
+        @param typeOfDistanceCalc (0 for hypotenuse, 1 for X distance, 2 for Y distance)
         """
         # Creates a local landmarkList
         landmarkList = self.tempLandmarkList
