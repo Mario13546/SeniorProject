@@ -2,6 +2,7 @@
 
 # Import libraries
 import cv2 as cv
+import time
 
 #  Import classes
 from hands                import HandDetector
@@ -58,7 +59,7 @@ class Gesture:
 
         return allHands
 
-    def fingerControl(self):
+    def handControl(self):
         """
         Writes data to the Arduino to move the finger servos.
         """
@@ -69,6 +70,45 @@ class Gesture:
         if hands is not None:
             # Sends the hand data to the arduino
             for ind, hand in enumerate(hands):
-                fingers     = self.detector.fingersUp(hand)
-                valReturned = self.arduino.sendData(fingers)
+                handPos     = self.detector.getHandPosition(hand)
+                valReturned = self.arduino.sendData(handPos)
                 print("Hand" + str(ind) + " Fingers:", valReturned)
+
+    def motionTest(self, id):
+        """
+        Induces motion into the didget with the specified id
+        :param id  
+        """
+        # Reads the caapture to continue the main
+        self.readCapture()
+
+        # Creates a blank array
+        handPos = [0, 0, 0, 0, 0, 0]
+
+        # Sets the proper value to 180
+        handPos[id] = 180
+        self.arduino.sendData(handPos)
+
+        # Waits 1 seconds
+        time.sleep(1)
+
+        # Sets the proper value to 90
+        handPos[id] = 90
+        self.arduino.sendData(handPos)
+
+        # Waits 1 seconds
+        time.sleep(1)
+
+        # Sets the proper value to 0
+        handPos[id] = 0
+        self.arduino.sendData(handPos)
+
+        # Waits 1 seconds
+        time.sleep(1)
+
+        # Sets the proper value to 90
+        handPos[id] = 90
+        self.arduino.sendData(handPos)
+
+        # Waits for 1 second
+        time.sleep(1)

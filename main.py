@@ -16,8 +16,8 @@ gesture = Gesture(cap, 1, 0.75, 0.75, testMode = False)
 
 # Main loop
 while (cap.isOpened() == True):
+    gesture.handControl()
     # gesture.liveTracking()
-    gesture.fingerControl()
 
     # Press q to end the program
     if ( cv.waitKey(1) == ord("q") ):

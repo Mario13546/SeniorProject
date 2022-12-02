@@ -135,9 +135,9 @@ class HandDetector:
 
         return allHands, stream
 
-    def fingersUp(self, myHand):
+    def getHandPosition(self, myHand):
         """
-        Finds how many fingers are open and returns a list.
+        Finds how many fingers are open and how rotated the wrist is.
         Considers left and right hands separately.
         @param anyHand
         @return fingerPositionArray
@@ -224,11 +224,15 @@ class HandDetector:
         self.fingerDistance[finger] = baseToTip / self.maxFingerLength[finger]
 
         # Determines what to return
-        if (self.fingerDistance[finger] < .15):
-            # Returns 0 if the distance is less than 0.15 the max
-            return 0
-        elif (self.fingerDistance[finger] > .85):
-            # Returns 180 if the distance is greater than than 0.85 the max
+        if (self.fingerDistance[finger] < .25):
+            # Returns 0 if the distance is less than 0.25 the max
+            if (finger == 2):
+                # Adjusts the zero position of the middle finger a little to avoid a hardware issue
+                return 10
+            else:
+                return 0
+        elif (self.fingerDistance[finger] > .75):
+            # Returns 180 if the distance is greater than than 0.75 the max
             return servoRange
         else:
             # Returns the actual value if otherwise
@@ -248,6 +252,8 @@ class HandDetector:
 
         # Calculates the ratio of the base to the tip and the full finger
         self.HandDistance = xDist / self.maxHandWidth
+
+        return 90
 
         # Determines what to return
         if (self.HandDistance < .20):
