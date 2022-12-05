@@ -76,39 +76,29 @@ class Gesture:
 
     def motionTest(self, id):
         """
-        Induces motion into the didget with the specified id
-        :param id  
+        Induces motion into the didget with a specified id
+        @param id  
         """
         # Reads the caapture to continue the main
         self.readCapture()
 
-        # Creates a blank array
-        handPos = [0, 0, 0, 0, 0, 0]
+        # Creates an array of zeros
+        handPos = [0] * 6
 
-        # Sets the proper value to 180
-        handPos[id] = 180
-        self.arduino.sendData(handPos)
+        # Consolidates the movement code
+        for i in range(0, 4):
+            if (i == 0):
+                # Sets the proper value to 180
+                handPos[id] = 180
+                self.arduino.sendData(handPos)
+            elif (i == 1 | i == 3):
+                # Sets the proper value to 90
+                handPos[id] = 90
+                self.arduino.sendData(handPos)
+            elif (i == 2):
+                # Sets the proper value to 0
+                handPos[id] = 0
+                self.arduino.sendData(handPos)
 
-        # Waits 1 seconds
-        time.sleep(1)
-
-        # Sets the proper value to 90
-        handPos[id] = 90
-        self.arduino.sendData(handPos)
-
-        # Waits 1 seconds
-        time.sleep(1)
-
-        # Sets the proper value to 0
-        handPos[id] = 0
-        self.arduino.sendData(handPos)
-
-        # Waits 1 seconds
-        time.sleep(1)
-
-        # Sets the proper value to 90
-        handPos[id] = 90
-        self.arduino.sendData(handPos)
-
-        # Waits for 1 second
-        time.sleep(1)
+            # Waits 1 seconds
+            time.sleep(1)
