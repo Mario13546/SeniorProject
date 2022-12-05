@@ -23,4 +23,5 @@ while (cap.isOpened() == True):
     if ( cv.waitKey(1) == ord("q") ):
         print("Process Ended by User")
         cv.destroyAllWindows()
+        cap.release()
         break
