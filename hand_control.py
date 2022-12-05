@@ -2,6 +2,7 @@
 
 # Import libraries
 import cv2 as cv
+import time
 
 #  Import classes
 from hands                import HandDetector
@@ -58,7 +59,7 @@ class Gesture:
 
         return allHands
 
-    def fingerControl(self):
+    def handControl(self):
         """
         Writes data to the Arduino to move the finger servos.
         """
@@ -67,18 +68,47 @@ class Gesture:
 
         # Checks if there are any hands
         if hands is not None:
-            # Hand 1
-            if len(hands) >= 1:
-                hand1 = hands[0]
+            # Sends the hand data to the arduino
+            for ind, hand in enumerate(hands):
+                handPos     = self.detector.getHandPosition(hand)
+                valReturned = self.arduino.sendData(handPos)
+                print("Hand" + str(ind) + " Fingers:", valReturned)
 
-                fingers1  = self.detector.fingersUp(hand1)
-                returned1 = self.arduino.sendData(fingers1)
-                print("Hand1 Fingers:", returned1)
+    def motionTest(self, id):
+        """
+        Induces motion into the didget with the specified id
+        :param id  
+        """
+        # Reads the caapture to continue the main
+        self.readCapture()
 
-            # Hand 2
-            if len(hands) >= 2:
-                hand2 = hands[1]
+        # Creates a blank array
+        handPos = [0, 0, 0, 0, 0, 0]
 
-                fingers2  = self.detector.fingersUp(hand2)
-                returned2 = self.arduino.sendData(fingers2)
-                print("Hand2 Fingers:", returned2)
+        # Sets the proper value to 180
+        handPos[id] = 180
+        self.arduino.sendData(handPos)
+
+        # Waits 1 seconds
+        time.sleep(1)
+
+        # Sets the proper value to 90
+        handPos[id] = 90
+        self.arduino.sendData(handPos)
+
+        # Waits 1 seconds
+        time.sleep(1)
+
+        # Sets the proper value to 0
+        handPos[id] = 0
+        self.arduino.sendData(handPos)
+
+        # Waits 1 seconds
+        time.sleep(1)
+
+        # Sets the proper value to 90
+        handPos[id] = 90
+        self.arduino.sendData(handPos)
+
+        # Waits for 1 second
+        time.sleep(1)

@@ -39,7 +39,9 @@ class HandDetector:
         self.tipIds      = [4, 8, 12, 16, 20]
         self.baseIds     = [1, 5, 9, 13, 17]
 
-        # Creates the finger length arrays
+        # Creates the variables for length calculations
+        self.HandDistance    = 0
+        self.maxHandWidth    = 0
         self.fingerDistance  = [0, 0, 0, 0, 0]
         self.maxFingerLength = [0, 0, 0, 0, 0]
 
@@ -91,7 +93,7 @@ class HandDetector:
                 ymin, ymax = min(yList), max(yList)
                 boxW, boxH = xmax - xmin, ymax - ymin
                 boundingBox = xmin, ymin, boxW, boxH
-                cx, cy = boundingBox[0] + (boundingBox[2] // 2), boundingBox[1] + (boundingBox[3] // 2)
+                cx, cy = boundingBox[0] + (boundingBox[2] / 2), boundingBox[1] + (boundingBox[3] / 2)
 
                 # Adds the values to myHand
                 myHand["landmarkList"] = myLandmarkList
@@ -114,10 +116,10 @@ class HandDetector:
                 cv.rectangle(stream, (boundingBox[0] - 20, boundingBox[1] - 20),
                                     (boundingBox[0] + boundingBox[2] + 20, boundingBox[1] + boundingBox[3] + 20),
                                     (255, 0, 255), 2)
-                
-                # Write the identifier
+
+                # Writes the identifier
                 cv.putText(stream, myHand["type"], (boundingBox[0] - 30, boundingBox[1] - 30), cv.FONT_HERSHEY_PLAIN, 2, (255, 0, 255), 2)
-                
+
                 # Draws on corners to the rectangle because they're cool
                 colorC    = (0, 255, 0)
                 l, t, adj = 30, 5, 20
@@ -133,15 +135,18 @@ class HandDetector:
 
         return allHands, stream
 
-    def fingersUp(self, myHand):
+    def getHandPosition(self, myHand):
         """
-        Finds how many fingers are open and returns a list.
+        Finds how many fingers are open and how rotated the wrist is.
         Considers left and right hands separately.
         @param anyHand
         @return fingerPositionArray
         """
         # Creates a blank array
-        fingers = []
+        fingerPos = []
+
+        # Lets me be lazy with x, y, and z
+        x, y, z, = 0, 1, 2
 
         # Creates arrays with the entries in the dictionary
         myHandType            = myHand["type"]
@@ -152,45 +157,54 @@ class HandDetector:
             # Thumb
             if myHandType == "Right":
                 # Helps see the thumb correctly even if the palm is back of the hand is facing the camera
-                if (myLandmarkList[self.tipIds[0]][0] > myLandmarkList[self.tipIds[4]][0]):
-                    if (myLandmarkList[self.tipIds[0]][0] > myLandmarkList[self.tipIds[0] - 2][0]):
-                        fingers.append(self.getFingerLength(0))
+                if (myLandmarkList[self.tipIds[0]][x] > myLandmarkList[self.tipIds[4]][x]):
+                    if (myLandmarkList[self.tipIds[0]][x] > myLandmarkList[self.tipIds[0] - 2][x]):
+                        fingerPos.append(self.getFingerLength(0))
                     else:
-                        fingers.append(0)
+                        fingerPos.append(0)
                 else:
-                    if (myLandmarkList[self.tipIds[0]][0] > myLandmarkList[self.tipIds[0] - 2][0]):
-                        fingers.append(0)
+                    if (myLandmarkList[self.tipIds[0]][x] > myLandmarkList[self.tipIds[0] - 2][x]):
+                        fingerPos.append(0)
                     else:
-                        fingers.append(self.getFingerLength(0))
+                        fingerPos.append(self.getFingerLength(0))
             elif myHandType == "Left":
                 # Helps see the thumb correctly even if the palm is back of the hand is facing the camera
-                if (myLandmarkList[self.tipIds[0]][0] < myLandmarkList[self.tipIds[4]][0]):
-                    if (myLandmarkList[self.tipIds[0]][0] < myLandmarkList[self.baseIds[0]][0]):
-                        fingers.append(self.getFingerLength(0))
+                if (myLandmarkList[self.tipIds[0]][x] < myLandmarkList[self.tipIds[4]][x]):
+                    if (myLandmarkList[self.tipIds[0]][x] < myLandmarkList[self.baseIds[0]][x]):
+                        fingerPos.append(self.getFingerLength(0))
                     else:
-                        fingers.append(0)
+                        fingerPos.append(0)
                 else:
-                    if (myLandmarkList[self.tipIds[0]][0] < myLandmarkList[self.baseIds[0]][0]):
-                        fingers.append(0)
+                    if (myLandmarkList[self.tipIds[0]][x] < myLandmarkList[self.baseIds[0]][x]):
+                        fingerPos.append(0)
                     else:
-                        fingers.append(self.getFingerLength(0))
+                        fingerPos.append(self.getFingerLength(0))
 
-            # Other 4 Fingers
+            # Other 4 fingerPos
             for id in range(1, 5):
-                if (myLandmarkList[self.tipIds[id]][1] < myLandmarkList[self.baseIds[id]][1]):
-                    fingers.append(self.getFingerLength(id))
+                if (myLandmarkList[self.tipIds[id]][y] < myLandmarkList[self.baseIds[id]][y]):
+                    fingerPos.append(self.getFingerLength(id))
                 else:
-                    fingers.append(0)
+                    fingerPos.append(0)
+
+            # Wrist rotation
+            if ((myLandmarkList[self.tipIds[0]][z] < 0) & (myLandmarkList[self.tipIds[4]][z] > 0)):
+                # If the pinky is behind the thumb
+                fingerPos.append(180)
+            else:
+                # Anything else
+                fingerPos.append(self.calcWristRotation())
 
         # Filter inappropriate gestures
-        fingers = self.gFilter.runAllFilters(fingers)
+        fingerPos = self.gFilter.runAllFilters(fingerPos)
 
-        return fingers
+        return fingerPos
 
     def getFingerLength(self, finger, servoRange = 180):
         """
         Calculates the max length of a finger.
         @param fingerInQuestion (0 for thumb, 1 for index, etc.)
+        @param servoRange
         """
         # Creates variables
         total = 0
@@ -210,21 +224,54 @@ class HandDetector:
         self.fingerDistance[finger] = baseToTip / self.maxFingerLength[finger]
 
         # Determines what to return
-        if (self.fingerDistance[finger] < .15):
-            # Returns 0 if the distance is less than 0.15 the max
-            return 0
-        elif (self.fingerDistance[finger] > .85):
-            # Returns 1 if the distance is greater than than 0.85 the max
+        if (self.fingerDistance[finger] < .25):
+            # Returns 0 if the distance is less than 0.25 the max
+            if (finger == 2):
+                # Adjusts the zero position of the middle finger a little to avoid a hardware issue
+                return 10
+            else:
+                return 0
+        elif (self.fingerDistance[finger] > .75):
+            # Returns 180 if the distance is greater than than 0.75 the max
             return servoRange
         else:
             # Returns the actual value if otherwise
             return int(self.fingerDistance[finger] * servoRange)
 
-    def calcLandmarkDist(self, id1, id2):
+    def calcWristRotation(self, servoRange = 180):
+        """
+        Calculates the rotation of the wrist.
+        @param servoRange
+        """
+        # Calculates the X Distance
+        xDist = self.calcLandmarkDist(0, self.baseIds[4], 1)
+        
+        # Overwrites the previous value if the new one is larger
+        if (xDist > self.maxHandWidth):
+            self.maxHandWidth = xDist
+
+        # Calculates the ratio of the base to the tip and the full finger
+        self.HandDistance = xDist / self.maxHandWidth
+
+        return 90
+
+        # Determines what to return
+        if (self.HandDistance < .20):
+            # Returns 0 if the distance is less than 20% the max
+            return 0
+        elif (self.HandDistance > .80):
+            # Returns 180 if the distance is greater than than 80% the max
+            return servoRange
+        else:
+            # Returns the actual value if otherwise
+            return int(self.HandDistance * servoRange)
+
+    def calcLandmarkDist(self, id1, id2, mode = 0):
         """
         Caclulates and returns the distance between two landmarks.
-        @param id1
-        @param id2
+        @param id1 (0 through 20)
+        @param id2 (0 through 20)
+        @param typeOfDistanceCalc (0 for hypotenuse, 1 for X distance, 2 for Y distance)
         """
         # Creates a local landmarkList
         landmarkList = self.tempLandmarkList
@@ -236,7 +283,17 @@ class HandDetector:
         y2 = landmarkList[id2][1]
 
         # Calculates the distance
-        distance = math.dist((x1, y1), (x2, y2))
+        if (mode == 0):
+            # True distance
+            distance = math.dist((x1, y1), (x2, y2))
+        elif (mode == 1):
+            # X distance
+            distance = math.dist((x1, 0), (x2, 0))
+        elif (mode == 2):
+            # Y distance
+            distance = math.dist((0, y1), (0, y2))
+        else:
+            distance = 0
 
         # Returns the distance
         return distance
