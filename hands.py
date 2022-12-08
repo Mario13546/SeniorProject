@@ -58,6 +58,7 @@ class HandDetector:
         @return allDetectedHands
         @return annotatedStream
         """
+        # Creates a blank array
         allHands = []
 
         # Flips the image
@@ -71,6 +72,7 @@ class HandDetector:
         # Gets the shape of the image
         self.height, self.width, self.center = stream.shape
 
+        # If the results.multi_hand_landmarks array is not empty
         if self.results.multi_hand_landmarks:
             for handType, handLandmarks in zip(self.results.multi_handedness, self.results.multi_hand_landmarks):
                 # Generates an empty dictionary
@@ -142,8 +144,8 @@ class HandDetector:
         @param anyHand
         @return fingerPositionArray
         """
-        # Creates an array of zeros
-        fingerPos = [0] * 6
+        # Creates a blank array
+        fingerPos = []
 
         # Lets me be lazy with x, y, and z values
         x, y, z, = 0, 1, 2
@@ -155,7 +157,7 @@ class HandDetector:
 
         if self.results.multi_hand_landmarks:
             # Runs the detection only if the hand is oriented in the correct manner
-            if (myLandmarkList[self.tipIds[2]][y] > myLandmarkList[0][y]):
+            if (myLandmarkList[self.tipIds[2]][y] < myLandmarkList[0][y]):
                 # Thumb
                 if myHandType == "Right":
                     # Helps see the thumb correctly even if the palm is back of the hand is facing the camera
@@ -186,8 +188,12 @@ class HandDetector:
                 for id in range(1, 5):
                     if (myLandmarkList[self.tipIds[id]][y] < myLandmarkList[self.baseIds[id]][y]):
                         fingerPos.append(self.getFingerLength(id))
-                    else:
-                        fingerPos.append(0)
+                    else: 
+                        if (id == 2):
+                            # Adjusts the middle finger's zero position to avoid a hardware issue
+                            fingerPos.append(10)
+                        else:
+                            fingerPos.append(0)
 
                 # Wrist rotation
                 if ((myLandmarkList[self.tipIds[0]][z] < 0) & (myLandmarkList[self.tipIds[4]][z] > 0)):
@@ -196,6 +202,9 @@ class HandDetector:
                 else:
                     # Anything else
                     fingerPos.append(self.calcWristRotation())
+            else:
+                # Sets the fingerPos array to 0
+                fingerPos = [0] * 6
 
         # Filter inappropriate gestures
         fingerPos = self.gFilter.runAllFilters(fingerPos)
@@ -228,11 +237,7 @@ class HandDetector:
         # Determines what to return
         if (self.fingerDistance[finger] < .25):
             # Returns 0 if the distance is less than 0.25 the max
-            if (finger == 2):
-                # Adjusts the zero position of the middle finger to avoid a hardware issue
-                return 10
-            else:
-                return 0
+            return 0
         elif (self.fingerDistance[finger] > .75):
             # Returns 180 if the distance is greater than than 0.75 the max
             return servoRange
