@@ -11,7 +11,7 @@ from filter import GestureFilter
 # Creates the HandDetector Class
 class HandDetector:
     # Constructor
-    def __init__(self, maxHands = 2, modelComplexity = 0, detectionCon = 0.5, minTrackCon = 0.5):
+    def __init__(self, maxHands = 2, detectionCon = 0.5, minTrackCon = 0.5):
         """
         Constructor for HandDetector.
         @param maxHands
@@ -20,16 +20,11 @@ class HandDetector:
         @param minimumTrackingConfidence
         """
         # Initiaizes the MediaPipe Hands solution
-        self.maxHands        = maxHands
-        self.modelComplexity = modelComplexity
-        self.detectionCon    = detectionCon
-        self.minTrackCon     = minTrackCon
-
-        self.mp_Hands = mp.solutions.hands
-        self.hands = self.mp_Hands.Hands(static_image_mode = False,
-                                        max_num_hands = self.maxHands,
-                                        min_detection_confidence = self.detectionCon,
-                                        min_tracking_confidence = self.minTrackCon)
+        self.mpHands = mp.solutions.hands
+        self.hands = self.mpHands.Hands(static_image_mode = False,
+                                        max_num_hands = maxHands,
+                                        min_detection_confidence = detectionCon,
+                                        min_tracking_confidence = minTrackCon)
 
         # Creates the drawing objects
         self.mp_drawing        = mp.solutions.drawing_utils
@@ -79,9 +74,7 @@ class HandDetector:
                 myHand = {}
 
                 # Generates some empty lists
-                myLandmarkList = []
-                xList          = []
-                yList          = []
+                myLandmarkList, xList, yList = [], [], []
 
                 # Adds cordinates to the landmarkList
                 for ind, landmarkList in enumerate(handLandmarks.landmark):
@@ -110,7 +103,7 @@ class HandDetector:
                 stream.flags.writeable = True
                 self.mp_drawing.draw_landmarks( stream,
                                                 handLandmarks,
-                                                self.mp_Hands.HAND_CONNECTIONS,
+                                                self.mpHands.HAND_CONNECTIONS,
                                                 self.mp_drawing_styles.get_default_hand_landmarks_style(),
                                                 self.mp_drawing_styles.get_default_hand_connections_style())
 
