@@ -27,6 +27,7 @@ class SerialComms:
                     if "Arduino" in port.description:
                         print(f'{port.description} Connected')
                         self.ser = serial.Serial(port.device, baudRate)
+                        self.testMode = False
                         connected = True
             except:
                 pass
@@ -39,6 +40,7 @@ class SerialComms:
         else:
             try:
                 # Sucessful connection
+                self.testMode = False
                 self.ser = serial.Serial(portNum, baudRate)
                 print("Connected to Serial Device")
             except:
