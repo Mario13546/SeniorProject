@@ -12,7 +12,7 @@ class GestureFilter:
         self.middleId = 2
         self.ringId   = 3
         self.pinkyId  = 4
-    
+
     def runAllFilters(self, fingers):
         """
         Runs all of the filters in this class
