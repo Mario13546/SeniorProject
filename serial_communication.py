@@ -30,11 +30,15 @@ class SerialComms:
                         self.testMode = False
                         connected = True
             except:
+                # Prints any exceptions
+                print(Exception)
                 pass
 
-            # Device no found
+            # Device not found
             if not connected:
                 print("Arduino not found")
+
+                # Assumes the system is in test mode
                 self.testMode = True
         # Port number given
         else:
@@ -45,8 +49,12 @@ class SerialComms:
                 print("Connected to Serial Device")
             except:
                 # Failed connection
-                self.testMode = True
                 print("Failed to connect to Serial Device")
+                print(Exception)
+
+                # Assumes the system is in test mode
+                self.testMode = True
+                pass
 
         # Bypasses serial device creation
         if (self.testMode == True):
