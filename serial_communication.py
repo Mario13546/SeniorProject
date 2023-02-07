@@ -1,6 +1,6 @@
 # Created by Alex Pereira
 
-# Imports
+# Import Libraries
 import serial
 import serial.tools.list_ports
 
@@ -29,9 +29,9 @@ class SerialComms:
                         self.ser = serial.Serial(port.device, baudRate)
                         self.testMode = False
                         connected = True
-            except:
+            except Exception as e:
                 # Prints any exceptions
-                print(Exception)
+                print(e)
                 pass
 
             # Device not found
@@ -47,10 +47,10 @@ class SerialComms:
                 self.testMode = False
                 self.ser = serial.Serial(portNum, baudRate)
                 print("Connected to Serial Device")
-            except:
+            except Exception as e:
                 # Failed connection
                 print("Failed to connect to Serial Device")
-                print(Exception)
+                print(e)
 
                 # Assumes the system is in test mode
                 self.testMode = True

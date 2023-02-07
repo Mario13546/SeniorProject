@@ -21,7 +21,7 @@ class HandDetector:
         """
         # Initiaizes the MediaPipe Hands solution
         self.mpHands = mp.solutions.hands
-        self.hands = self.mpHands.Hands(static_image_mode = False,
+        self.hands   = self.mpHands.Hands(static_image_mode = False,
                                         max_num_hands = maxHands,
                                         min_detection_confidence = detectionCon,
                                         min_tracking_confidence = minTrackCon)
@@ -31,8 +31,8 @@ class HandDetector:
         self.mp_drawing_styles = mp.solutions.drawing_styles
 
         # Creates the ID lists
-        self.tipIds      = [4, 8, 12, 16, 20]
-        self.baseIds     = [1, 5, 9, 13, 17]
+        self.tipIds  = [4, 8, 12, 16, 20]
+        self.baseIds = [1, 5, 9, 13, 17]
 
         # Creates the variables for length calculations
         self.HandDistance    = 0
@@ -144,69 +144,38 @@ class HandDetector:
         x, y, z, = 0, 1, 2
 
         # Creates arrays with the entries in the dictionary
-        myHandType            = myHand["type"]
         myLandmarkList        = myHand["landmarkList"]
-        self.tempLandmarkList = myHand["landmarkList"]  # Avoids having to make the myHand dictionary a self variable
+        self.tempLandmarkList = myHand["landmarkList"]  # Avoids having to make the myHand dictionary a class variable
 
-        if self.results.multi_hand_landmarks:
-            # Runs the detection only if the hand is oriented in the correct manner
-            if (myLandmarkList[self.tipIds[2]][y] < myLandmarkList[0][y]):
-                # Thumb
-                if myHandType == "Right":
-                    # Helps see the thumb correctly even if the palm is back of the hand is facing the camera
-                    if (myLandmarkList[self.tipIds[0]][x] > myLandmarkList[self.tipIds[4]][x]):
-                        if (myLandmarkList[self.tipIds[0]][x] > myLandmarkList[self.tipIds[0] - 2][x]):
-                            fingerPos.append(self.getFingerLength(0))
-                        else:
-                            fingerPos.append(0)
-                    else:
-                        if (myLandmarkList[self.tipIds[0]][x] > myLandmarkList[self.tipIds[0] - 2][x]):
-                            fingerPos.append(0)
-                        else:
-                            fingerPos.append(self.getFingerLength(0))
-                elif myHandType == "Left":
-                    # Helps see the thumb correctly even if the palm is back of the hand is facing the camera
-                    if (myLandmarkList[self.tipIds[0]][x] < myLandmarkList[self.tipIds[4]][x]):
-                        if (myLandmarkList[self.tipIds[0]][x] < myLandmarkList[self.baseIds[0]][x]):
-                            fingerPos.append(self.getFingerLength(0))
-                        else:
-                            fingerPos.append(0)
-                    else:
-                        if (myLandmarkList[self.tipIds[0]][x] < myLandmarkList[self.baseIds[0]][x]):
-                            fingerPos.append(0)
-                        else:
-                            fingerPos.append(self.getFingerLength(0))
+        if (self.results.multi_hand_landmarks is not None):
+            # All fingers
+            for id in range(0, 5):
+                fingerPos.append(self.getFingerLength(id))
 
-                # Other 4 fingerPos
-                for id in range(1, 5):
-                    if (myLandmarkList[self.tipIds[id]][y] < myLandmarkList[self.baseIds[id]][y]):
-                        fingerPos.append(self.getFingerLength(id))
-                    else: 
-                        if (id == 2):
-                            # Adjusts the middle finger's zero position to avoid a hardware issue
-                            fingerPos.append(10)
-                        else:
-                            fingerPos.append(0)
+            # Adjusts the middle finger's zero position to avoid a hardware issue
+            if (fingerPos[2] <= 10):
+                fingerPos[2] = 10
 
-                # Wrist rotation
-                if ((myLandmarkList[self.tipIds[0]][z] < 0) & (myLandmarkList[self.tipIds[4]][z] > 0)):
-                    # If the pinky is behind the thumb
-                    fingerPos.append(180)
-                else:
-                    # Anything else
-                    fingerPos.append(self.calcWristRotation())
+            # Wrist rotation
+            if ((myLandmarkList[self.tipIds[0]][z] < 0) & (myLandmarkList[self.tipIds[4]][z] > 0)):
+                # If the pinky is behind the thumb
+                fingerPos.append(180)
             else:
-                # Sets the fingerPos array to 0
-                fingerPos = [0] * 6
-
+                # Anything else
+                fingerPos.append(self.calcWristRotation())
+        else:
+            # Resets the maxFingerLength and maxHandWidth variables
+            self.maxHandWidth    = 1
+            self.maxFingerLength = [1] * 5
+        
         # Filter inappropriate gestures
         fingerPos = self.gFilter.runAllFilters(fingerPos)
 
         return fingerPos
 
-    def getFingerLength(self, finger, servoRange = 180):
+    def getFingerLength(self, finger = 0, servoRange = 180):
         """
-        Calculates the max length of a finger.
+        Calculates the length of a finger.
         @param fingerInQuestion (0 for thumb, 1 for index, etc.)
         @param servoRange
         """
@@ -214,26 +183,66 @@ class HandDetector:
         total = 0
 
         # Adds up the different segments
-        for i in range(self.baseIds[finger], self.tipIds[finger]):
-            total += self.calcLandmarkDist(i, i + 1)
+        if (finger == 0):
+            for i in range(self.baseIds[finger] + 1, self.tipIds[finger]):
+                total += self.calcLandmarkDist(i, i + 1)
+        else:
+            for i in range(self.baseIds[finger], self.tipIds[finger]):
+                total += self.calcLandmarkDist(i, i + 1)
 
         # Overwrites the previous value if the new one is larger
         if (total > self.maxFingerLength[finger]):
             self.maxFingerLength[finger] = total
 
         # Calculates the base to tip distance
-        baseToTip = self.calcLandmarkDist(self.tipIds[finger], self.baseIds[finger])
+        if (finger == 0):
+            baseToTip = self.calcLandmarkDist(self.tipIds[finger], self.baseIds[finger] + 1)
+        else:
+            baseToTip = self.calcLandmarkDist(self.tipIds[finger], self.baseIds[finger])
 
         # Calculates the ratio of the base to the tip and the full finger
         self.fingerDistance[finger] = baseToTip / self.maxFingerLength[finger]
 
         # Determines what to return
-        if (self.fingerDistance[finger] < .25):
-            # Returns 0 if the distance is less than 0.25 the max
+        if (finger == 0):
+            # Returns 0 if the distance is less than 0.40 the thumb's max
+            return self.calcThumbDistance()
+        else:
+            if (self.fingerDistance[finger] < .25):
+                # Returns 0 if the distance is less than 0.25 the max
+                return 0
+            elif (self.fingerDistance[finger] > .75):
+                # Returns 180 if the distance is greater than than 0.75 the max
+                return servoRange
+            else:
+                # Returns the actual value if otherwise
+                return int(self.fingerDistance[finger] * servoRange)
+
+    def calcThumbDistance(self, finger = 0, servoRange = 180):
+        """
+        Calulates the length of the thumb.
+        """
+        # Asserts that this is for the thumb
+        assert(finger == 0)
+
+        # Thumb Threshold Variables
+        dist  = self.calcLandmarkDist(self.tipIds[0], self.baseIds[0])
+        xDist = self.calcLandmarkDist(self.tipIds[0], self.baseIds[0], 1)
+        yDist = self.calcLandmarkDist(self.tipIds[0], self.baseIds[0], 2)
+        segmentDist = 1.05 * self.calcLandmarkDist(self.tipIds[0] - 1, self.baseIds[0] + 1)
+
+        if (self.fingerDistance[finger] < .40):
+            # Returns 0 if the distance is less than 0.40 the thumb's max
             return 0
         elif (self.fingerDistance[finger] > .75):
             # Returns 180 if the distance is greater than than 0.75 the max
             return servoRange
+        elif (dist <= segmentDist):
+            return 0
+        elif (xDist <= segmentDist):
+            return 0
+        elif (yDist <= segmentDist):
+            return 0
         else:
             # Returns the actual value if otherwise
             return int(self.fingerDistance[finger] * servoRange)
@@ -282,9 +291,17 @@ class HandDetector:
         x2 = landmarkList[id2][0]
         y2 = landmarkList[id2][1]
 
+        # Adjusts the thumb's base to make it closer to the tip
+        if (id1 == self.baseIds[0]):
+            x1 = (landmarkList[1][0] + landmarkList[2][0]) / 2
+            y1 = (landmarkList[1][1] + landmarkList[2][1]) / 2
+        elif (id2 == self.baseIds[0]):
+            x2 = (landmarkList[1][0] + landmarkList[2][0]) / 2
+            y2 = (landmarkList[1][1] + landmarkList[2][1]) / 2
+
         # Calculates the distance
         if (mode == 0):
-            # True distance
+            # Hypotenuse length
             distance = math.dist((x1, y1), (x2, y2))
         elif (mode == 1):
             # X distance

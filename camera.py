@@ -1,6 +1,6 @@
 # Created by Alex Pereira
 
-# Imports
+# Import Libraries
 import cv2 as cv
 
 # Variables

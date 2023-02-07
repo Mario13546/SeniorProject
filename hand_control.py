@@ -1,8 +1,8 @@
 # Created by Alex Pereira
 
-# Import libraries
-import cv2 as cv
+# Import Libraries
 import time
+import cv2 as cv
 
 #  Import classes
 from hands                import HandDetector
@@ -45,16 +45,17 @@ class Gesture:
 
     def liveTracking(self):
         """
-        Similar to the old liveTracking() method and to be used for display purposes.
+        Tracks all hands that move across the screen.
+        Does NOT cause the prosthetic to move.
         @return allDetectedHands
         """
         # Reads the capture
         stream = self.readCapture()
 
-        # Hand detection 2.0
+        # Hand detection
         allHands, stream = self.detector.findHands(stream)
 
-        # Show the stream
+        # Shows the stream
         cv.imshow("MediaPipe Hands", stream)
 
         return allHands
@@ -67,7 +68,7 @@ class Gesture:
         hands = self.liveTracking()
 
         # Checks if there are any hands
-        if hands is not None:
+        if (hands is not None):
             # Sends the hand data to the arduino
             for ind, hand in enumerate(hands):
                 handPos     = self.detector.getHandPosition(hand)
