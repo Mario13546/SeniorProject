@@ -3,8 +3,10 @@
 # Import Libraries
 import time
 import cv2 as cv
+import numpy as np
 
 #  Import classes
+from ASL                  import Signing
 from hands                import HandDetector
 from serial_communication import SerialComms
 
@@ -25,6 +27,9 @@ class Gesture:
         self.cap = capture
         self.readCapture()
         print("Camera opened sucessfully")
+
+        # Creates an instance of Signing
+        self.signing = Signing()
 
         # Creates an instance of HandDetector
         self.detector = HandDetector(maxHands = maxHands, detectionCon = detectionCon, minTrackCon = minTrackCon)
@@ -60,7 +65,7 @@ class Gesture:
 
         return allHands
 
-    def handControl(self):
+    def liveHandControl(self):
         """
         Writes data to the Arduino to move the finger servos.
         """
@@ -75,31 +80,27 @@ class Gesture:
                 valReturned = self.arduino.sendData(handPos)
                 print("Hand" + str(ind) + " Fingers:", valReturned)
 
-    def motionTest(self, id):
+    def signLetters(self):
         """
-        Induces motion into the didget with a specified id
-        @param id  
+        Displays certain letters using American Sign Language, to the best of the machine's ability.
+        @return continue
         """
-        # Reads the caapture to continue the main
-        self.readCapture()
+        # Allows the user to input data
+        inp = input("Letter to display: ")
+
+        # Returns the end signal
+        if (inp.lower() == "end"):
+            return False
 
         # Creates an array of zeros
-        handPos = [0] * 6
+        handPos = np.zeros(6)
+        handPos[5] = 90  # Makes the wrist stay in the middle
 
-        # Consolidates the movement code
-        for i in range(0, 4):
-            if (i == 0):
-                # Sets the proper value to 180
-                handPos[id] = 180
-                self.arduino.sendData(handPos)
-            elif (i == 1 | i == 3):
-                # Sets the proper value to 90
-                handPos[id] = 90
-                self.arduino.sendData(handPos)
-            elif (i == 2):
-                # Sets the proper value to 0
-                handPos[id] = 0
-                self.arduino.sendData(handPos)
+        # Gets the position associated with the letter
+        handPos = self.signing.getLetterPos(inp)
 
-            # Waits 1 seconds
-            time.sleep(1)
+        # Sends the position data to the Arduino
+        self.arduino.sendData(handPos)
+
+        # Returns the continue signal
+        return True
