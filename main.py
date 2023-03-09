@@ -18,6 +18,9 @@ gesture = Gesture(cap, maxHands = 1, detectionCon = 0.75, minTrackCon = 0.75)
 # Test mode setting
 test = True
 
+# Add a slight delay
+time.sleep(1)
+
 # Main loop
 while ((cap.isOpened() == True) and (test == False)):
     # gesture.liveTracking()

@@ -1,9 +1,9 @@
 # Created by Alex Pereira
 
 # Import Libraries
-import time
-import cv2 as cv
+import cv2   as cv
 import numpy as np
+from   time import sleep
 
 #  Import classes
 from ASL                  import Signing
@@ -86,7 +86,8 @@ class Gesture:
         @return continue
         """
         # Allows the user to input data
-        inp = input("Letter to display: ")
+        inp  = input("Letter to display: ")
+        char = inp[0]
 
         # Returns the end signal
         if (inp.lower() == "end"):
@@ -97,9 +98,9 @@ class Gesture:
         handPos[5] = 90  # Makes the wrist stay in the middle
 
         # Gets the position associated with the letter
-        handPos = self.signing.getLetterPos(inp)
+        handPos = self.signing.getLetterPos(char)
 
-        # Sends the position data to the Arduino
+        # Sends the position data to the Arduino with special consideration for some letters
         self.arduino.sendData(handPos)
 
         # Returns the continue signal
