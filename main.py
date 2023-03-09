@@ -1,36 +1,27 @@
 # Created by Alex Pereira
 
 # Import Libraries
-import time
-import cv2 as cv
+from time import sleep
 
 # Import Classes
-from camera       import USBCamera
 from hand_control import Gesture
 
-# Create a VideoCapture
-camera = USBCamera(0)
-cap    = camera.getCapture()
-
 # Instance creation
-gesture = Gesture(cap, maxHands = 1, detectionCon = 0.75, minTrackCon = 0.75)
+gesture = Gesture(maxHands = 1, detectionCon = 0.75, minTrackCon = 0.75)
 
 # Test mode setting
-test = True
+test = False
 
 # Add a slight delay
-time.sleep(1)
+sleep(1)
 
 # Main loop
-while ((cap.isOpened() == True) and (test == False)):
+while (test == False):
     # gesture.liveTracking()
     gesture.liveHandControl()
 
     # Press q to end the program
-    if ( cv.waitKey(1) == ord("q") ):
-        print("Process Ended by User")
-        cv.destroyAllWindows()
-        cap.release()
+    if ( gesture.getEnd() == True ):
         break
 
 # Test loop

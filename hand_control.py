@@ -3,16 +3,17 @@
 # Import Libraries
 import cv2   as cv
 import numpy as np
-from   time import sleep
 
-#  Import classes
+# Import classes
 from ASL                  import Signing
 from hands                import HandDetector
+from camera               import USBCamera
+from pathlib              import Path
 from serial_communication import SerialComms
 
 # Creates the Gesture Class
 class Gesture:
-    def __init__(self, capture, maxHands, detectionCon, minTrackCon) -> None:
+    def __init__(self, maxHands, detectionCon, minTrackCon) -> None:
         """
         Constructor for the Gestures class.
         @param videoCapture
@@ -20,33 +21,20 @@ class Gesture:
         @param minimumDetectionConfidence
         @param minimumTrackingConfidence
         """
+        # Gets the file path
+        filePath = Path(__file__).absolute().parent.__str__()
+
         # Creates a serial object
         self.arduino = SerialComms()
-
-        # Reads capture in init
-        self.cap = capture
-        self.readCapture()
-        print("Camera opened sucessfully")
 
         # Creates an instance of Signing
         self.signing = Signing()
 
+        # Creates an instance of USBCamera
+        self.camera = USBCamera(0, None, (1280, 720), True, filePath)
+
         # Creates an instance of HandDetector
         self.detector = HandDetector(maxHands = maxHands, detectionCon = detectionCon, minTrackCon = minTrackCon)
-    
-    def readCapture(self):
-        """
-        Reads the VideoCapture capture.
-        @return videoStream
-        """
-        # Reads the capture
-        success, stream = self.cap.read()
-
-        # If read fails, raise an error
-        if not success:
-            raise OSError("Camera error! Failed to start!")
-        
-        return stream
 
     def liveTracking(self):
         """
@@ -55,7 +43,7 @@ class Gesture:
         @return allDetectedHands
         """
         # Reads the capture
-        stream = self.readCapture()
+        stream = self.camera.getUndistortedStream()
 
         # Hand detection
         allHands, stream = self.detector.findHands(stream)
@@ -105,3 +93,10 @@ class Gesture:
 
         # Returns the continue signal
         return True
+    
+    def getEnd(self):
+        """
+        Gets if the function should end.
+        @return end
+        """
+        return self.camera.getEnd()
