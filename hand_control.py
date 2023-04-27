@@ -3,6 +3,7 @@
 # Import Libraries
 import cv2   as cv
 import numpy as np
+from   time  import sleep
 
 # Import classes
 from ASL                  import Signing
@@ -86,14 +87,43 @@ class Gesture:
         handPos[5] = 90  # Makes the wrist stay in the middle
 
         # Gets the position associated with the letter
-        handPos = self.signing.getLetterPos(char)
+        endPos  = self.signing.getLetterPos(char) # The unmodified value
+        handPos = self.signing.getLetterPos(char) # The value to account for hardware limitations
 
         # Sends the position data to the Arduino with special consideration for some letters
-        self.arduino.sendData(handPos)
+        if (char.lower() == "s"):
+            handPos = np.array([180] * 6)
+            handPos[5] = 90
+            self.arduino.sendData(handPos)
+            sleep(1)
+            handPos = np.array([0] * 6)
+            handPos[0] = 180
+            handPos[5] = 90
+            self.arduino.sendData(handPos)
+            sleep(1)
+            self.arduino.sendData(endPos)
+        elif (char.lower() == "t"):
+            handPos = np.array([180] * 6)
+            handPos[0] = 0
+            handPos[5] = 90
+            self.arduino.sendData(handPos)
+            sleep(1)
+            self.arduino.sendData(endPos)
+        else:
+            # Prevents the thumb or index finger from getting blocked by the other
+            if ((handPos[0] == 0 and handPos[1] != 0) or (handPos[0] != 0 and handPos[1] == 0)):
+                handPos[0] = 180
+                handPos[1] = 180
+                self.arduino.sendData(handPos)
+                sleep(1)
+                self.arduino.sendData(endPos)
+            else:
+                # Sends the position data to the Arduino
+                self.arduino.sendData(endPos)
 
         # Returns the continue signal
         return True
-    
+
     def getEnd(self):
         """
         Gets if the function should end.
