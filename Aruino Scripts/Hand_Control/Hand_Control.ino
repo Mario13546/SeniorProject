@@ -23,12 +23,12 @@ void setup() {
   Serial.setTimeout(10);
 
   // Sets up the servos
-  servoWrist .attach(7);
-  servoThumb .attach(8);
-  servoIndex .attach(9);
-  servoMiddle.attach(10);
-  servoRing  .attach(11);
-  servoPinky .attach(12);
+  servoWrist .attach(3);
+  servoThumb .attach(5);
+  servoIndex .attach(6);
+  servoMiddle.attach(9);
+  servoRing  .attach(10);
+  servoPinky .attach(11);
 
   // Servos go to the init position
   servoWrist .write(90);
