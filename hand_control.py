@@ -67,7 +67,7 @@ class Gesture:
             for ind, hand in enumerate(hands):
                 handPos     = self.detector.getHandPosition(hand)
                 valReturned = self.arduino.sendData(handPos)
-                print("Hand" + str(ind) + " Fingers:", valReturned)
+                # print("Hand" + str(ind) + " Fingers:", valReturned)
 
     def signLetters(self):
         """
@@ -83,12 +83,10 @@ class Gesture:
             return False
 
         # Creates an array of zeros
-        handPos = np.zeros(6)
-        handPos[5] = 90  # Makes the wrist stay in the middle
+        handPos = np.zeros(6, dtype = np.float32)
 
         # Gets the position associated with the letter
-        endPos  = self.signing.getLetterPos(char) # The unmodified value
-        handPos = self.signing.getLetterPos(char) # The value to account for hardware limitations
+        endPos  = self.signing.getLetterPos(char)
 
         # Sends the position data to the Arduino with special consideration for some letters
         if (char.lower() == "s"):
@@ -96,30 +94,29 @@ class Gesture:
             handPos[5] = 90
             self.arduino.sendData(handPos)
             sleep(1)
-            handPos = np.array([0] * 6)
             handPos[0] = 180
-            handPos[5] = 90
             self.arduino.sendData(handPos)
             sleep(1)
             self.arduino.sendData(endPos)
         elif (char.lower() == "t"):
             handPos = np.array([180] * 6)
-            handPos[0] = 0
             handPos[5] = 90
+            self.arduino.sendData(handPos)
+            sleep(1)
+            handPos[0] = 0
             self.arduino.sendData(handPos)
             sleep(1)
             self.arduino.sendData(endPos)
         else:
             # Prevents the thumb or index finger from getting blocked by the other
-            if ((handPos[0] == 0 and handPos[1] != 0) or (handPos[0] != 0 and handPos[1] == 0)):
+            if (endPos[0] == 0 and endPos[1] == 0):
+                handPos = endPos
                 handPos[0] = 180
                 handPos[1] = 180
                 self.arduino.sendData(handPos)
-                sleep(1)
-                self.arduino.sendData(endPos)
-            else:
-                # Sends the position data to the Arduino
-                self.arduino.sendData(endPos)
+
+            # Sends the position data to the Arduino
+            self.arduino.sendData(endPos)
 
         # Returns the continue signal
         return True
