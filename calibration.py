@@ -4,9 +4,6 @@ import glob
 import cv2   as cv
 import numpy as np
 
-# Import Utilities
-from frc_apriltags.Utilities.Logger import Logger
-
 # Defines the dimensions of the chessboard
 CHESSBOARD = (8, 5)  # Number of interior corners (width in squares - 1 x height in squares - 1)
 
@@ -52,9 +49,6 @@ class Calibrate:
         # Variables
         self.doOver    = False
         self.logStatus = False
-
-        # Updates log
-        Logger.logInfo("Calibration initialized for camera " + str(camNum), True)
 
     def calibrateCamera(self):
         """
@@ -124,15 +118,15 @@ class Calibrate:
         # Restarts the calibration if 1/2 of the images cannot be used for calibration
         if (imagesUsed < (self.calibrationImages * 1/2)):
             # Updates log
-            Logger.logWarning("Calibration restarted", self.logStatus)
-            Logger.logInfo("Images found: {}".format(imagesUsed), self.logStatus)
+            print("Calibration restarted")
+            print("Images found: {}".format(imagesUsed))
 
             # Sets up for a do over
             self.doOver = True
 
             self.calibrateCamera()
         else:
-            Logger.logInfo("Images found: {}".format(imagesUsed), self.logStatus)
+            print("Images found: {}".format(imagesUsed))
             self.doOver = False
 
         # Calibrate the camera by passing the value of known 3D points (objPoints) and corresponding pixel coordinates of the detected corners (imgPoints)
@@ -140,10 +134,6 @@ class Calibrate:
 
         # Calculates the reprediction error
         repredictError = self.calculateRepredictionError()
-
-        # Updates log
-        Logger.logInfo("Camera {} Calibrated".format(self.camNum), self.logStatus)
-        Logger.logInfo("Camera Properties: \nCamera Matrix: \n{}, \nDistortion Matrix: \n{}, \nRotation Vectors: \n{}, \nTranslation Vectors: \n{}, \nAverage Reprediction Value: {}".format(self.cameraMatrix, self.distortion, self.rVecs, self.tVecs, repredictError), self.logStatus)
 
         # Return calibration results
         return self.ret, self.cameraMatrix, self.distortion, self.rVecs, self.tVecs
@@ -205,9 +195,6 @@ class Calibrate:
                     # Prints the status
                     print("Calibration image {} taken".format(j))
 
-                    # Updates log
-                    Logger.logInfo("Calibration image {} taken".format(j), self.logStatus)
-
                     # Breaks the while loop
                     imgSelected = True
                     break
@@ -215,9 +202,9 @@ class Calibrate:
         # Destroys all windows
         cv.destroyAllWindows()
 
-        # Updates log
-        Logger.logInfo("Calibration images generated", self.logStatus)
-        Logger.logInfo("Images stored at " +  self.PATH, self.logStatus)
+        # Prints the status
+        print("Calibration images generated")
+        print("Images stored at " +  self.PATH)
 
     def getPathExistance(self) -> bool:
         """
@@ -232,7 +219,7 @@ class Calibrate:
         try:
             os.mkdir(self.PATH)
         except Exception as e:
-            Logger.logError("{}".format(e), self.logStatus)
+            print(e)
 
         # Attempts to read the last callibration image and updates variables accordingly
         img = cv.imread(self.PATH + str(self.calibrationImages) + self.EXTENSION)
@@ -240,11 +227,9 @@ class Calibrate:
         # Determines if the calibration imgaes exist
         if (img is not None):
             pathExists = True
-            Logger.logInfo("PATH already exists", self.logStatus)
             print("PATH already exists")
         else:
             pathExists = False
-            Logger.logWarning("PATH does not exist", self.logStatus)
             print("PATH does not exist")
 
         return pathExists
